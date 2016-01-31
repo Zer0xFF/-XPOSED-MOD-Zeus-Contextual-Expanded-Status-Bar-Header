@@ -1,12 +1,10 @@
 package net.madnation.zeus.contextual.xposed;
 
 import android.content.res.XModuleResources;
-import android.os.Handler;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.Calendar;
-import java.util.Random;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookZygoteInit;
@@ -32,65 +30,21 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
         lpparam.res.hookLayout("com.android.systemui", "layout", "status_bar_expanded_header", new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(final LayoutInflatedParam liparam) throws Throwable {
-                final Handler handler = new Handler();
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        ViewGroup navbar = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("header", "id", "com.android.systemui"));
-                        ViewGroup VG = (ViewGroup) liparam.view;
-                        boolean isImageView = VG.getChildAt(0).getClass().getName() == net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName();
+                ViewGroup navbar = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("header", "id", "com.android.systemui"));
+                ViewGroup VG = (ViewGroup) liparam.view;
+                boolean isImageView = VG.getChildAt(0).getClass().getName() == net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName();
 
-                        TopCropImageView IV;
-                        if (!isImageView) {
-                            IV = new TopCropImageView(liparam.view.getContext());
-                            IV.setMinimumWidth(VG.getWidth());
-                            IV.setMinimumHeight(VG.getHeight());
+                TopCropImageView IV;
+                if (!isImageView) {
+                    IV = new TopCropImageView(VG.getContext(), modRes);
+                    IV.setMinimumWidth(VG.getWidth());
+                    IV.setMinimumHeight(VG.getHeight());
 
-                            IV.setImageDrawable(modRes.getDrawable(getBackgroundID(), VG.getContext().getTheme()));
-                            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -1);
-                            navbar.addView(IV, 0, p);
-                        } else {
-                            IV = (TopCropImageView) VG.getChildAt(0);
-                            IV.setImageDrawable(modRes.getDrawable(getBackgroundID(), VG.getContext().getTheme()));
-                        }
-                        handler.postDelayed(this, nextUpdate());
-                    }
-                };
-                handler.post(runnable);
+                    LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -1);
+                    navbar.addView(IV, 0, p);
+                }
             }
         });
-    }
-
-    public int getBackgroundID() {
-        Calendar c = Calendar.getInstance();
-        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        int[] drawerIDarr = {R.drawable.morning_banna_leaf_threeheadedmonkey};
-        if (timeOfDay >= 3 && timeOfDay < 12) {
-            drawerIDarr = new int[]{
-                    R.drawable.morning_banna_leaf_threeheadedmonkey,
-                    R.drawable.morning_niall_stopford,
-                    R.drawable.morning_dew_boris_mitendorfer_photography,
-            };
-        } else if (timeOfDay >= 12 && timeOfDay < 16) {
-            drawerIDarr = new int[]{
-                    R.drawable.afternoon_brooklyn_bridge_andrew_mace,
-                    R.drawable.afternoon_delight_james_marvin_phelps,
-                    R.drawable.afternoon_morocco_trey_ratcliff,
-            };
-        } else if (timeOfDay >= 16 && timeOfDay < 21) {
-            drawerIDarr = new int[]{
-                    R.drawable.evening_castelfalfi_bernd_thaller,
-                    R.drawable.evening_chicago_james_clear,
-                    R.drawable.evening_singapore_jurek_d,
-            };
-        } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
-            drawerIDarr = new int[]{
-                    R.drawable.night_chicago_justin_brown,
-                    R.drawable.night_canary_islands_i_k_o,
-                    R.drawable.night_starry_night_shawn_harquail,
-            };
-        }
-        return drawerIDarr[new Random().nextInt(drawerIDarr.length)];
     }
 
     public int nextUpdate() {

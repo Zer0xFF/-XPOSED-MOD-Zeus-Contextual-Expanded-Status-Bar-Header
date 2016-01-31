@@ -3,3 +3,5 @@ After seeing [Contextual Lenox Header](http://forum.xda-developers.com/crossdevi
 ![preview](http://i.imgur.com/dmfBija.png)
 
 [Download @ Xposed Repo](http://repo.xposed.info/module/net.madnation.zeus.contextual.xposed)
+
+[XDA Thread](http://forum.xda-developers.com/xposed/modules/mod-zeus-contextual-expanded-status-t3304965)

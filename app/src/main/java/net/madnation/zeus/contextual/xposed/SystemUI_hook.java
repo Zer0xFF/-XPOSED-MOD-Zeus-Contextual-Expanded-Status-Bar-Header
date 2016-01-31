@@ -104,8 +104,10 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
             timeDelay = (16 - timeOfDay - 1) * 3600000 + (60 - mins) * 60000;
         } else if (timeOfDay >= 16 && timeOfDay < 21) {
             timeDelay = (21 - timeOfDay - 1) * 3600000 + (60 - mins) * 60000;
-        } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
+        } else if (timeOfDay >= 21 && timeOfDay < 24) {
             timeDelay = (24 - timeOfDay - 1) * 3600000 + (60 - mins) * 60000;
+        } else if (timeOfDay >= 0 && timeOfDay < 3) {
+            timeDelay = (3 - timeOfDay - 1) * 3600000 + (60 - mins) * 60000;
         }
         XposedBridge.log("SystemUI: Next Contextual BG Change " + timeDelay);
         return timeDelay + 60000;

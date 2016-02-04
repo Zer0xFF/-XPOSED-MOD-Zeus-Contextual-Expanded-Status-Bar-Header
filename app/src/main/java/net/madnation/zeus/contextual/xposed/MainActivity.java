@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.SyncStateContract;
@@ -18,6 +19,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -27,6 +32,9 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
+
+import eu.chainfire.libsuperuser.Shell;
 
 public class MainActivity extends AppCompatActivity {
     private static final int READ_PERMISSION = 0;
@@ -47,8 +55,34 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Startup();
         }
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.RestartUI:
+                (new RestartSystemUI()).execute();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private class RestartSystemUI extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean suAvailable = Shell.SU.available();
+            if (suAvailable) {
+                List<String> suResult = Shell.SU.run(new String[]{"pkill -l 9 -f com.android.systemui"});
+            }
+            return null;
+        }
     }
 
     private void Startup() {

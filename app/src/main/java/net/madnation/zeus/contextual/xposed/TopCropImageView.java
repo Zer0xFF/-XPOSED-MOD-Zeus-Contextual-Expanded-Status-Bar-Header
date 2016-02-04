@@ -96,6 +96,12 @@ public class TopCropImageView extends ImageView {
             scale = (float) viewWidth / (float) drawableWidth;
         }
 
+        if (drawableWidth * scale < viewWidth){
+            scale = (float) viewWidth / (float) drawableWidth;
+        } else if (drawableHeight * scale < viewHeight) {
+            scale = (float) viewHeight / (float) drawableHeight;
+        }
+
         matrix.setScale(scale, scale);
         setImageMatrix(matrix);
     }

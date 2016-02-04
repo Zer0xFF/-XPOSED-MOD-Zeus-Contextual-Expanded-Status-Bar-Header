@@ -32,7 +32,15 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
 
         final XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
 
-        lpparam.res.hookLayout("com.android.systemui", "layout", "status_bar_expanded_header", new XC_LayoutInflated() {
+        String layoutName;
+        if (lpparam.res.getIdentifier("asus_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
+            layoutName = "asus_status_bar_expanded_header";
+        } else {
+            layoutName = "status_bar_expanded_header";
+        }
+
+
+        lpparam.res.hookLayout("com.android.systemui", "layout", layoutName, new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(final LayoutInflatedParam liparam) throws Throwable {
                 ViewGroup navbar = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("header", "id", "com.android.systemui"));

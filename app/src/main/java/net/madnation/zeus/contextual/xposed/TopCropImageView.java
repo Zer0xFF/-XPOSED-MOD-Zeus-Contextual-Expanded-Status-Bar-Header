@@ -55,10 +55,15 @@ public class TopCropImageView extends ImageView {
         Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
         Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
         if (isToUpdate) {
-            if (isCustom){
+            if (isCustom) {
                 setCustomBackground();
             } else {
-                setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+                try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
+                    setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         }
         recomputeImgMatrix();
@@ -207,6 +212,10 @@ public class TopCropImageView extends ImageView {
                 }
             }
         }
-        setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+        try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
+            setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

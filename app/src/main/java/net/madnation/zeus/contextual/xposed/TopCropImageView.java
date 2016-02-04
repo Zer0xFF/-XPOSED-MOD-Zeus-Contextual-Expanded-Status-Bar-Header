@@ -2,13 +2,18 @@ package net.madnation.zeus.contextual.xposed;
 
 import android.content.Context;
 import android.content.res.XModuleResources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.util.Log;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Random;
+
+import de.robv.android.xposed.XSharedPreferences;
 
 /**
  * ImageView to display top-crop scale of an image view.
@@ -19,16 +24,18 @@ import java.util.Random;
 public class TopCropImageView extends ImageView {
 
     private final XModuleResources modRes;
-    private int CURRENT_BG = -1;
+    private final XSharedPreferences prefs;
+    protected static int CURRENT_BG = -1;
     private int MORNING_BG = 0;
     private int AFTERNOON_BG = 1;
     private int EVENING_BG = 2;
     private int NIGHT_BG = 3;
 
-    public TopCropImageView(Context context, XModuleResources modRes) {
+    public TopCropImageView(Context context, XModuleResources modRes, XSharedPreferences prefs) {
         super(context);
         setScaleType(ScaleType.MATRIX);
         this.modRes = modRes;
+        this.prefs = prefs;
     }
 
     @Override
@@ -41,10 +48,18 @@ public class TopCropImageView extends ImageView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         Log.e("Zeus_SystemUI", "onLayout, Called");
-        boolean bool = isToUpdate();
-        Log.e("Zeus_SystemUI", "isToUpdate, Called:" + bool);
-        if (bool) {
-            setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+        boolean isToUpdate = isToUpdate();
+        prefs.reload();
+        boolean isCustom = prefs.getBoolean("isCustom", false);
+
+        Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
+        Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
+        if (isToUpdate) {
+            if (isCustom){
+                setCustomBackground();
+            } else {
+                setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+            }
         }
         recomputeImgMatrix();
     }
@@ -134,5 +149,58 @@ public class TopCropImageView extends ImageView {
             CURRENT_BG = NIGHT_BG;
         }
         return drawerIDarr[new Random().nextInt(drawerIDarr.length)];
+    }
+
+    private void setCustomBackground() {
+        Calendar c = Calendar.getInstance();
+        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
+        prefs.reload();
+        if (timeOfDay >= 3 && timeOfDay < 12) {
+            String BG = prefs.getString("MORNING_BG", null);
+            if (BG != null){
+                File file = new File(BG);
+                if (file.exists()) {
+                    Bitmap img = BitmapFactory.decodeFile(BG);
+                    setImageBitmap(img);
+                    CURRENT_BG = MORNING_BG;
+                    return;
+                }
+            }
+        } else if (timeOfDay >= 12 && timeOfDay < 16) {
+            String BG = prefs.getString("AFTERNOON_BG", null);
+            if (BG != null){
+                File file = new File(BG);
+                if (file.exists()) {
+                    Bitmap img = BitmapFactory.decodeFile(BG);
+                    setImageBitmap(img);
+                    CURRENT_BG = AFTERNOON_BG;
+                    return;
+                }
+            }
+        } else if (timeOfDay >= 16 && timeOfDay < 21) {
+            String BG = prefs.getString("EVENING_BG", null);
+            if (BG != null){
+                File file = new File(BG);
+                if (file.exists()){
+                    Bitmap img = BitmapFactory.decodeFile(BG);
+                    setImageBitmap(img);
+                    CURRENT_BG = EVENING_BG;
+                    return;
+                }
+
+            }
+        } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
+            String BG = prefs.getString("NIGHT_BG", null);
+            if (BG != null){
+                File file = new File(BG);
+                if (file.exists()) {
+                    Bitmap img = BitmapFactory.decodeFile(BG);
+                    setImageBitmap(img);
+                    CURRENT_BG = AFTERNOON_BG;
+                    return;
+                }
+            }
+        }
+        setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
     }
 }

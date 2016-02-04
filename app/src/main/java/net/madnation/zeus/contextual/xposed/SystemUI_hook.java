@@ -8,6 +8,7 @@ import java.util.Calendar;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookZygoteInit;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
@@ -24,9 +25,13 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
     public void handleInitPackageResources(final XC_InitPackageResources.InitPackageResourcesParam lpparam) throws Throwable {
         if (!lpparam.packageName.equals("com.android.systemui"))
             return;
-
+        final XSharedPreferences prefs = new XSharedPreferences("net.madnation.zeus.contextual.xposed", "net.madnation.zeus.contextual.xposed");
+        prefs.reload();
+        prefs.makeWorldReadable();
+        XposedBridge.log("pref loc " + prefs.getFile().getAbsolutePath());
 
         final XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
+
         lpparam.res.hookLayout("com.android.systemui", "layout", "status_bar_expanded_header", new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(final LayoutInflatedParam liparam) throws Throwable {
@@ -36,7 +41,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
 
                 TopCropImageView IV;
                 if (!isImageView) {
-                    IV = new TopCropImageView(VG.getContext(), modRes);
+                    IV = new TopCropImageView(VG.getContext(), modRes, prefs);
                     IV.setMinimumWidth(VG.getWidth());
                     IV.setMinimumHeight(VG.getHeight());
 

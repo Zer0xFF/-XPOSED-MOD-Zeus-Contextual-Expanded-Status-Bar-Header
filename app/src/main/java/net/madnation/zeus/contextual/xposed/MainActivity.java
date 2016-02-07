@@ -6,13 +6,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +26,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.yalantis.ucrop.UCrop;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -36,6 +38,8 @@ import eu.chainfire.libsuperuser.Shell;
 public class MainActivity extends AppCompatActivity {
     private static final int READ_PERMISSION = 0;
     private static final String PACKAGE_NAME = "net.madnation.zeus.contextual.xposed";
+    private static final int IMAGE_PICKER = 1010;
+    private static int IMAGE_REQ = -1;
     ViewHolder VH;
     final int MORNING_REQ = 2001;
     final int AFTERNOON_REQ = 2002;
@@ -48,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_PERMISSION);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, READ_PERMISSION);
         } else {
             Startup();
         }
@@ -178,33 +182,23 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            final Uri resultUri = UCrop.getOutput(data);
             Bitmap bitmap;
             String filePath;
             try {
-                InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                InputStream inputStream = getContentResolver().openInputStream(resultUri);
                 bitmap = BitmapFactory.decodeStream(inputStream);
                 int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
                 bitmap = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
-
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                Cursor cursor = getContentResolver().query(
-                        selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                filePath = cursor.getString(columnIndex);
-                cursor.close();
-
+                filePath = resultUri.getPath();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 return;
             }
             if (bitmap != null) {
                 SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
-                switch (requestCode) {
+                switch (IMAGE_REQ) {
                     default:
                     case MORNING_REQ://"Morning":
                         VH.morningIV.setImageBitmap(bitmap);
@@ -224,6 +218,42 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            final Throwable cropError = UCrop.getError(data);
+            cropError.printStackTrace();
+        }
+
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICKER) {
+            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
+            if (!dir.exists()) {
+                dir.mkdir();
+                File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
+                if (!nomedia.exists()) {
+                    nomedia.exists();
+                }
+            }
+
+            String img_name;
+            switch (IMAGE_REQ) {
+                default:
+                case MORNING_REQ://"Morning":
+                    img_name = "MORNING_BG";
+                    break;
+                case AFTERNOON_REQ://"Afternoon":
+                    img_name = "AFTERNOON_BG";
+                    break;
+                case EVENING_REQ://"Evening":
+                    img_name = "EVENING_BG";
+                    break;
+                case NIGHT_REQ://"Night":
+                    img_name = "NIGHT_BG";
+                    break;
+            }
+            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH/" + img_name + ".jpg"));
+            UCrop.of(data.getData(), destURI)
+                    .withAspectRatio(14, 8)
+                    .start(this);
+
         }
     }
 
@@ -250,21 +280,23 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (isEnable) {
                     Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
                     String resName = v.getContext().getResources().getResourceEntryName(v.getId());
                     switch (resName) {
                         case "Morning":
-                            ((MainActivity) v.getContext()).startActivityForResult(intent, MORNING_REQ);
+                            IMAGE_REQ = MORNING_REQ;
                             break;
                         case "Afternoon":
-                            ((MainActivity) v.getContext()).startActivityForResult(intent, AFTERNOON_REQ);
+                            IMAGE_REQ = AFTERNOON_REQ;
                             break;
                         case "Evening":
-                            ((MainActivity) v.getContext()).startActivityForResult(intent, EVENING_REQ);
+                            IMAGE_REQ = EVENING_REQ;
                             break;
                         case "Night":
-                            ((MainActivity) v.getContext()).startActivityForResult(intent, NIGHT_REQ);
+                            IMAGE_REQ = NIGHT_REQ;
                             break;
                     }
+                    ((MainActivity) v.getContext()).startActivityForResult(intent, IMAGE_PICKER);
                     //Show selector
                 }
             }

@@ -53,7 +53,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
+                    <net.madnation.zeus.contextual.xposed.TopCropImageView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/MorningIV"
@@ -65,7 +65,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_alignWithParentIfMissing="true"
                         android:src="@drawable/morning_niall_stopford"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="matrix" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -95,14 +95,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
+                    <net.madnation.zeus.contextual.xposed.TopCropImageView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/AfternoonIV"
                         android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
                         android:src="@drawable/afternoon_brooklyn_bridge_andrew_mace"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="matrix" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -132,7 +132,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
+                    <net.madnation.zeus.contextual.xposed.TopCropImageView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/EveningIV"
@@ -143,7 +143,7 @@
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentRight="true"
                         android:src="@drawable/evening_singapore_jurek_d"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="matrix" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -173,7 +173,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
+                    <net.madnation.zeus.contextual.xposed.TopCropImageView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/NightIV"
@@ -184,7 +184,7 @@
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentRight="true"
                         android:src="@drawable/night_starry_night_shawn_harquail"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="matrix" />
 
                     <TextView
                         android:layout_width="wrap_content"

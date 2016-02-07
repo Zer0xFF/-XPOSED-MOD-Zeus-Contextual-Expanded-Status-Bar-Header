@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -23,8 +24,8 @@ import de.robv.android.xposed.XSharedPreferences;
  */
 public class TopCropImageView extends ImageView {
 
-    private final XModuleResources modRes;
-    private final XSharedPreferences prefs;
+    private XModuleResources modRes = null;
+    private XSharedPreferences prefs = null;
     protected static int CURRENT_BG = -1;
     private int MORNING_BG = 0;
     private int AFTERNOON_BG = 1;
@@ -38,9 +39,14 @@ public class TopCropImageView extends ImageView {
         this.prefs = prefs;
     }
 
+    public TopCropImageView(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        setScaleType(ScaleType.MATRIX);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.e("Zeus_SystemUI", "OnDraw, Called");
+        //Log.e("Zeus_SystemUI", "OnDraw, Called");
         super.onDraw(canvas);
     }
 
@@ -48,22 +54,23 @@ public class TopCropImageView extends ImageView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         Log.e("Zeus_SystemUI", "onLayout, Called");
-        boolean isToUpdate = isToUpdate();
-        prefs.reload();
-        boolean isCustom = prefs.getBoolean("isCustom", false);
+        if (prefs != null && modRes != null) {
+            boolean isToUpdate = isToUpdate();
 
-        Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
-        Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
-        if (isToUpdate) {
-            if (isCustom) {
-                setCustomBackground();
-            } else {
-                try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
-                    setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
-                } catch (Exception e) {
-                    e.printStackTrace();
+            Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
+            if (isToUpdate) {
+                prefs.reload();
+                boolean isCustom = prefs.getBoolean("isCustom", false);
+                Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
+                if (isCustom) {
+                    setCustomBackground();
+                } else {
+                    try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
+                        setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-
             }
         }
         recomputeImgMatrix();
@@ -112,18 +119,22 @@ public class TopCropImageView extends ImageView {
     }
 
     public boolean isToUpdate() {
-        Calendar c = Calendar.getInstance();
-        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        if (timeOfDay >= 3 && timeOfDay < 12) {
-            return CURRENT_BG != MORNING_BG;
-        } else if (timeOfDay >= 12 && timeOfDay < 16) {
-            return CURRENT_BG != AFTERNOON_BG;
-        } else if (timeOfDay >= 16 && timeOfDay < 21) {
-            return CURRENT_BG != EVENING_BG;
-        } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
-            return CURRENT_BG != NIGHT_BG;
+        if (CURRENT_BG == -1){
+            return true;
+        } else {
+            Calendar c = Calendar.getInstance();
+            int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
+            if (timeOfDay >= 3 && timeOfDay < 12) {
+                return CURRENT_BG != MORNING_BG;
+            } else if (timeOfDay >= 12 && timeOfDay < 16) {
+                return CURRENT_BG != AFTERNOON_BG;
+            } else if (timeOfDay >= 16 && timeOfDay < 21) {
+                return CURRENT_BG != EVENING_BG;
+            } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
+                return CURRENT_BG != NIGHT_BG;
+            }
+            return true;
         }
-        return true;
     }
 
     private int getBackgroundID() {
@@ -165,7 +176,6 @@ public class TopCropImageView extends ImageView {
     private void setCustomBackground() {
         Calendar c = Calendar.getInstance();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        prefs.reload();
         if (timeOfDay >= 3 && timeOfDay < 12) {
             String BG = prefs.getString("MORNING_BG", null);
             if (BG != null){

@@ -14,14 +14,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.SyncStateContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -38,6 +35,7 @@ import eu.chainfire.libsuperuser.Shell;
 
 public class MainActivity extends AppCompatActivity {
     private static final int READ_PERMISSION = 0;
+    private static final String PACKAGE_NAME = "net.madnation.zeus.contextual.xposed";
     ViewHolder VH;
     final int MORNING_REQ = 2001;
     final int AFTERNOON_REQ = 2002;
@@ -88,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private void Startup() {
         VH = new ViewHolder(this);
 
-        final SharedPreferences sp = getSharedPreferences("net.madnation.zeus.contextual.xposed", MODE_WORLD_READABLE);
+        final SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
 
         if (sp.getString("MORNING_BG", null)!=null) {
             String BG = sp.getString("MORNING_BG", null);
@@ -137,9 +135,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 VH.setTextView(isChecked);
-                //((MainActivity)buttonView.getContext()).getPreferences(MODE_WORLD_WRITEABLE).edit().putBoolean("isCustom", isChecked).apply();
                 sp.edit().putBoolean("isCustom", isChecked).apply();
-                //buttonView.getContext().get("net.madnation.zeus.contextual.xposed", MODE_WORLD_WRITEABLE).edit().putBoolean("isCustom", isChecked).apply();
             }
         });
         cb.setChecked(sp.getBoolean("isCustom", false));
@@ -183,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            Bitmap bitmap = null;
+            Bitmap bitmap;
             String filePath;
             try {
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
@@ -207,23 +203,24 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             if (bitmap != null) {
+                SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
                 switch (requestCode) {
                     default:
                     case MORNING_REQ://"Morning":
                         VH.morningIV.setImageBitmap(bitmap);
-                        getSharedPreferences("net.madnation.zeus.contextual.xposed", MODE_WORLD_READABLE).edit().putString("MORNING_BG", filePath).apply();
+                        sp.edit().putString("MORNING_BG", filePath).apply();
                         break;
                     case AFTERNOON_REQ://"Afternoon":
                         VH.afternoonIV.setImageBitmap(bitmap);
-                        getSharedPreferences("net.madnation.zeus.contextual.xposed", MODE_WORLD_READABLE).edit().putString("AFTERNOON_BG", filePath).apply();
+                        sp.edit().putString("AFTERNOON_BG", filePath).apply();
                         break;
                     case EVENING_REQ://"Evening":
                         VH.eveningIV.setImageBitmap(bitmap);
-                        getSharedPreferences("net.madnation.zeus.contextual.xposed", MODE_WORLD_READABLE).edit().putString("EVENING_BG", filePath).apply();
+                        sp.edit().putString("EVENING_BG", filePath).apply();
                         break;
                     case NIGHT_REQ://"Night":
                         VH.nightIV.setImageBitmap(bitmap);
-                        getSharedPreferences("net.madnation.zeus.contextual.xposed", MODE_WORLD_READABLE).edit().putString("NIGHT_BG", filePath).apply();
+                        sp.edit().putString("NIGHT_BG", filePath).apply();
                         break;
                 }
             }
@@ -298,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
         void setTextView(boolean isEnable) {
             this.isEnable = isEnable;
-            getSharedPreferences("net.madnation.zeus.contextual.xposed", MODE_WORLD_READABLE).edit().putBoolean("isCustom", isEnable).apply();
+            getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE).edit().putBoolean("isCustom", isEnable).apply();
             if (isEnable) {
                 morningTV.setTextColor(Color.BLACK);
                 afternoonTV.setTextColor(Color.BLACK);

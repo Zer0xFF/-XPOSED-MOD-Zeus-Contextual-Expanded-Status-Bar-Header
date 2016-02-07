@@ -26,11 +26,11 @@ public class TopCropImageView extends ImageView {
 
     private XModuleResources modRes = null;
     private XSharedPreferences prefs = null;
-    protected static int CURRENT_BG = -1;
-    private int MORNING_BG = 0;
-    private int AFTERNOON_BG = 1;
-    private int EVENING_BG = 2;
-    private int NIGHT_BG = 3;
+    private static int CURRENT_BG = -1;
+    private final int MORNING_BG = 0;
+    private final int AFTERNOON_BG = 1;
+    private final int EVENING_BG = 2;
+    private final int NIGHT_BG = 3;
 
     public TopCropImageView(Context context, XModuleResources modRes, XSharedPreferences prefs) {
         super(context);
@@ -118,7 +118,7 @@ public class TopCropImageView extends ImageView {
         setImageMatrix(matrix);
     }
 
-    public boolean isToUpdate() {
+    private boolean isToUpdate() {
         if (CURRENT_BG == -1){
             return true;
         } else {

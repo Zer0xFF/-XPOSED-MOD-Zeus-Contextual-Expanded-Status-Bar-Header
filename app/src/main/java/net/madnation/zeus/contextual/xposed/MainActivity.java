@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,7 +30,6 @@ import android.widget.TextView;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -40,11 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String PACKAGE_NAME = "net.madnation.zeus.contextual.xposed";
     private static final int IMAGE_PICKER = 1010;
     private static int IMAGE_REQ = -1;
-    ViewHolder VH;
-    final int MORNING_REQ = 2001;
-    final int AFTERNOON_REQ = 2002;
-    final int EVENING_REQ = 2003;
-    final int NIGHT_REQ = 2004;
+    private ViewHolder VH;
+    private final int MORNING_REQ = 2001;
+    private final int AFTERNOON_REQ = 2002;
+    private final int EVENING_REQ = 2003;
+    private final int NIGHT_REQ = 2004;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case READ_PERMISSION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
                 bitmap = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
                 filePath = resultUri.getPath();
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return;
             }
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             final Throwable cropError = UCrop.getError(data);
-            cropError.printStackTrace();
+            if (cropError != null) cropError.printStackTrace();
         }
 
         if (resultCode == RESULT_OK && requestCode == IMAGE_PICKER) {
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
 
         private boolean isEnable = false;
 
-        private View.OnClickListener CL = new View.OnClickListener() {
+        private final View.OnClickListener CL = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isEnable) {

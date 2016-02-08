@@ -76,6 +76,7 @@ public class TopCropImageView extends ImageView {
         recomputeImgMatrix();
     }
 
+
     @Override
     protected boolean setFrame(int l, int t, int r, int b) {
         recomputeImgMatrix();
@@ -182,8 +183,8 @@ public class TopCropImageView extends ImageView {
                 File file = new File(BG);
                 if (file.exists()) {
                     Bitmap img = BitmapFactory.decodeFile(BG);
-                    setImageBitmap(img);
                     CURRENT_BG = MORNING_BG;
+                    setImageBitmap(img);
                     return;
                 }
             }
@@ -193,8 +194,8 @@ public class TopCropImageView extends ImageView {
                 File file = new File(BG);
                 if (file.exists()) {
                     Bitmap img = BitmapFactory.decodeFile(BG);
-                    setImageBitmap(img);
                     CURRENT_BG = AFTERNOON_BG;
+                    setImageBitmap(img);
                     return;
                 }
             }
@@ -204,8 +205,8 @@ public class TopCropImageView extends ImageView {
                 File file = new File(BG);
                 if (file.exists()){
                     Bitmap img = BitmapFactory.decodeFile(BG);
-                    setImageBitmap(img);
                     CURRENT_BG = EVENING_BG;
+                    setImageBitmap(img);
                     return;
                 }
 
@@ -216,8 +217,8 @@ public class TopCropImageView extends ImageView {
                 File file = new File(BG);
                 if (file.exists()) {
                     Bitmap img = BitmapFactory.decodeFile(BG);
-                    setImageBitmap(img);
                     CURRENT_BG = AFTERNOON_BG;
+                    setImageBitmap(img);
                     return;
                 }
             }

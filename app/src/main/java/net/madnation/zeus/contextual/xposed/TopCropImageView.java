@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -123,7 +124,7 @@ public class TopCropImageView extends ImageView {
         if (CURRENT_BG == -1){
             return true;
         } else {
-            Calendar c = Calendar.getInstance();
+            Calendar c = new GregorianCalendar();
             int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
             if (timeOfDay >= 3 && timeOfDay < 12) {
                 return CURRENT_BG != MORNING_BG;
@@ -139,7 +140,7 @@ public class TopCropImageView extends ImageView {
     }
 
     private int getBackgroundID() {
-        Calendar c = Calendar.getInstance();
+        Calendar c = new GregorianCalendar();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         int[] drawerIDarr = {R.drawable.morning_banna_leaf_threeheadedmonkey};
         if (timeOfDay >= 3 && timeOfDay < 12) {
@@ -175,7 +176,7 @@ public class TopCropImageView extends ImageView {
     }
 
     private void setCustomBackground() {
-        Calendar c = Calendar.getInstance();
+        Calendar c = new GregorianCalendar();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         if (timeOfDay >= 3 && timeOfDay < 12) {
             String BG = prefs.getString("MORNING_BG", null);

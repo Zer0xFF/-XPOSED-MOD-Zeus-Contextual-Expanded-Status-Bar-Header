@@ -33,6 +33,12 @@ public class TopCropImageView extends ImageView {
     private final int EVENING_BG = 2;
     private final int NIGHT_BG = 3;
 
+    private final int MORNING_START = 3;
+    private final int AFTERNOON_START = 12;
+    private final int EVENING_START = 18;
+    private final int NIGHT_START = 21;
+
+
     public TopCropImageView(Context context, XModuleResources modRes, XSharedPreferences prefs) {
         super(context);
         setScaleType(ScaleType.MATRIX);
@@ -126,13 +132,13 @@ public class TopCropImageView extends ImageView {
         } else {
             Calendar c = new GregorianCalendar();
             int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-            if (timeOfDay >= 3 && timeOfDay < 12) {
+            if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
                 return CURRENT_BG != MORNING_BG;
-            } else if (timeOfDay >= 12 && timeOfDay < 16) {
+            } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
                 return CURRENT_BG != AFTERNOON_BG;
-            } else if (timeOfDay >= 16 && timeOfDay < 21) {
+            } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
                 return CURRENT_BG != EVENING_BG;
-            } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
+            } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
                 return CURRENT_BG != NIGHT_BG;
             }
             return true;
@@ -143,28 +149,28 @@ public class TopCropImageView extends ImageView {
         Calendar c = new GregorianCalendar();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         int[] drawerIDarr = {R.drawable.morning_banna_leaf_threeheadedmonkey};
-        if (timeOfDay >= 3 && timeOfDay < 12) {
+        if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
             drawerIDarr = new int[]{
                     R.drawable.morning_banna_leaf_threeheadedmonkey,
                     R.drawable.morning_niall_stopford,
                     R.drawable.morning_dew_boris_mitendorfer_photography,
             };
             CURRENT_BG = MORNING_BG;
-        } else if (timeOfDay >= 12 && timeOfDay < 16) {
+        } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
             drawerIDarr = new int[]{
                     R.drawable.afternoon_brooklyn_bridge_andrew_mace,
                     R.drawable.afternoon_delight_james_marvin_phelps,
                     R.drawable.afternoon_morocco_trey_ratcliff,
             };
             CURRENT_BG = AFTERNOON_BG;
-        } else if (timeOfDay >= 16 && timeOfDay < 21) {
+        } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
             drawerIDarr = new int[]{
                     R.drawable.evening_castelfalfi_bernd_thaller,
                     R.drawable.evening_chicago_james_clear,
                     R.drawable.evening_singapore_jurek_d,
             };
             CURRENT_BG = EVENING_BG;
-        } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
+        } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
             drawerIDarr = new int[]{
                     R.drawable.night_chicago_justin_brown,
                     R.drawable.night_canary_islands_i_k_o,
@@ -178,7 +184,7 @@ public class TopCropImageView extends ImageView {
     private void setCustomBackground() {
         Calendar c = new GregorianCalendar();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        if (timeOfDay >= 3 && timeOfDay < 12) {
+        if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
             String BG = prefs.getString("MORNING_BG", null);
             if (BG != null){
                 File file = new File(BG);
@@ -189,7 +195,7 @@ public class TopCropImageView extends ImageView {
                     return;
                 }
             }
-        } else if (timeOfDay >= 12 && timeOfDay < 16) {
+        } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
             String BG = prefs.getString("AFTERNOON_BG", null);
             if (BG != null){
                 File file = new File(BG);
@@ -200,7 +206,7 @@ public class TopCropImageView extends ImageView {
                     return;
                 }
             }
-        } else if (timeOfDay >= 16 && timeOfDay < 21) {
+        } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
             String BG = prefs.getString("EVENING_BG", null);
             if (BG != null){
                 File file = new File(BG);
@@ -212,7 +218,7 @@ public class TopCropImageView extends ImageView {
                 }
 
             }
-        } else if ((timeOfDay >= 21 && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < 3)) {
+        } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
             String BG = prefs.getString("NIGHT_BG", null);
             if (BG != null){
                 File file = new File(BG);

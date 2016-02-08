@@ -62,7 +62,8 @@ public class TopCropImageView extends ImageView {
         super.onLayout(changed, left, top, right, bottom);
         Log.e("Zeus_SystemUI", "onLayout, Called");
         if (prefs != null && modRes != null) {
-            boolean isToUpdate = isToUpdate();
+            final int currentTime = currentTime();
+            boolean isToUpdate = (CURRENT_BG == -1) || CURRENT_BG != currentTime;
 
             Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
             if (isToUpdate) {
@@ -70,13 +71,9 @@ public class TopCropImageView extends ImageView {
                 boolean isCustom = prefs.getBoolean("isCustom", false);
                 Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
                 if (isCustom) {
-                    setCustomBackground();
+                    setCustomBackground(currentTime);
                 } else {
-                    try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
-                        setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    setRandomBackground(currentTime);
                 }
             }
         }
@@ -126,114 +123,88 @@ public class TopCropImageView extends ImageView {
         setImageMatrix(matrix);
     }
 
-    private boolean isToUpdate() {
-        if (CURRENT_BG == -1){
-            return true;
-        } else {
-            Calendar c = new GregorianCalendar();
-            int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-            if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
-                return CURRENT_BG != MORNING_BG;
-            } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
-                return CURRENT_BG != AFTERNOON_BG;
-            } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
-                return CURRENT_BG != EVENING_BG;
-            } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
-                return CURRENT_BG != NIGHT_BG;
-            }
-            return true;
-        }
-    }
-
-    private int getBackgroundID() {
-        Calendar c = new GregorianCalendar();
-        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        int[] drawerIDarr = {R.drawable.morning_banna_leaf_threeheadedmonkey};
-        if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
-            drawerIDarr = new int[]{
-                    R.drawable.morning_banna_leaf_threeheadedmonkey,
-                    R.drawable.morning_niall_stopford,
-                    R.drawable.morning_dew_boris_mitendorfer_photography,
-            };
-            CURRENT_BG = MORNING_BG;
-        } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
-            drawerIDarr = new int[]{
-                    R.drawable.afternoon_brooklyn_bridge_andrew_mace,
-                    R.drawable.afternoon_delight_james_marvin_phelps,
-                    R.drawable.afternoon_morocco_trey_ratcliff,
-            };
-            CURRENT_BG = AFTERNOON_BG;
-        } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
-            drawerIDarr = new int[]{
-                    R.drawable.evening_castelfalfi_bernd_thaller,
-                    R.drawable.evening_chicago_james_clear,
-                    R.drawable.evening_singapore_jurek_d,
-            };
-            CURRENT_BG = EVENING_BG;
-        } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
-            drawerIDarr = new int[]{
-                    R.drawable.night_chicago_justin_brown,
-                    R.drawable.night_canary_islands_i_k_o,
-                    R.drawable.night_starry_night_shawn_harquail,
-            };
-            CURRENT_BG = NIGHT_BG;
-        }
-        return drawerIDarr[new Random().nextInt(drawerIDarr.length)];
-    }
-
-    private void setCustomBackground() {
+    private int currentTime() {
         Calendar c = new GregorianCalendar();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
-            String BG = prefs.getString("MORNING_BG", null);
-            if (BG != null){
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    CURRENT_BG = MORNING_BG;
-                    setImageBitmap(img);
-                    return;
-                }
-            }
+            return MORNING_BG;
         } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
-            String BG = prefs.getString("AFTERNOON_BG", null);
-            if (BG != null){
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    CURRENT_BG = AFTERNOON_BG;
-                    setImageBitmap(img);
-                    return;
-                }
-            }
+            return AFTERNOON_BG;
         } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
-            String BG = prefs.getString("EVENING_BG", null);
-            if (BG != null){
-                File file = new File(BG);
-                if (file.exists()){
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    CURRENT_BG = EVENING_BG;
-                    setImageBitmap(img);
-                    return;
-                }
-
-            }
+            return EVENING_BG;
         } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
-            String BG = prefs.getString("NIGHT_BG", null);
-            if (BG != null){
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    CURRENT_BG = AFTERNOON_BG;
-                    setImageBitmap(img);
-                    return;
-                }
-            }
+            return NIGHT_BG;
         }
+        return -1;
+    }
+
+    private void setRandomBackground(int currentTime) {
+        int[] drawerIDarr;
+        switch (currentTime) {
+            default:
+            case MORNING_BG:
+                drawerIDarr = new int[]{
+                        R.drawable.morning_banna_leaf_threeheadedmonkey,
+                        R.drawable.morning_niall_stopford,
+                        R.drawable.morning_dew_boris_mitendorfer_photography,
+                };
+                break;
+            case AFTERNOON_BG:
+                drawerIDarr = new int[]{
+                        R.drawable.afternoon_brooklyn_bridge_andrew_mace,
+                        R.drawable.afternoon_delight_james_marvin_phelps,
+                        R.drawable.afternoon_morocco_trey_ratcliff,
+                };
+                break;
+            case EVENING_BG:
+                drawerIDarr = new int[]{
+                        R.drawable.evening_castelfalfi_bernd_thaller,
+                        R.drawable.evening_chicago_james_clear,
+                        R.drawable.evening_singapore_jurek_d,
+                };
+                break;
+            case NIGHT_BG:
+                drawerIDarr = new int[]{
+                        R.drawable.night_chicago_justin_brown,
+                        R.drawable.night_canary_islands_i_k_o,
+                        R.drawable.night_starry_night_shawn_harquail,
+                };
+                break;
+        }
+        CURRENT_BG = currentTime;
         try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
-            setImageDrawable(modRes.getDrawable(getBackgroundID(), this.getContext().getTheme()));
+            setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void setCustomBackground(int currentTime) {
+        String BG = null;
+        switch (currentTime) {
+            case MORNING_BG:
+                BG = "MORNING_BG";
+                break;
+            case AFTERNOON_BG:
+                BG = "AFTERNOON_BG";
+                break;
+            case EVENING_BG:
+                BG = "EVENING_BG";
+                break;
+            case NIGHT_BG:
+                BG = "NIGHT_BG";
+                break;
+        }
+        BG = prefs.getString(BG, null);
+        if (BG != null) {
+            File file = new File(BG);
+            if (file.exists()) {
+                Bitmap img = BitmapFactory.decodeFile(BG);
+                CURRENT_BG = currentTime;
+                setImageBitmap(img);
+                return;
+            }
+        }
+        setRandomBackground(currentTime);
     }
 }

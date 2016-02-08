@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     img_name = "NIGHT_BG";
                     break;
             }
-            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH/" + img_name + ".jpg"));
+            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + ".jpg"));
             UCrop.of(data.getData(), destURI)
                     .withAspectRatio(14, 8)
                     .start(this);

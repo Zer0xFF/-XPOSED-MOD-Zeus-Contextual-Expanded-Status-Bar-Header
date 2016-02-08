@@ -26,7 +26,9 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
             return;
 
         String layoutName;
-        if (lpparam.res.getIdentifier("asus_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
+        if (lpparam.res.getIdentifier("zz_moto_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
+          layoutName = "zz_moto_status_bar_expanded_header";
+        } else if (lpparam.res.getIdentifier("asus_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
             layoutName = "asus_status_bar_expanded_header";
         } else {
             layoutName = "status_bar_expanded_header";

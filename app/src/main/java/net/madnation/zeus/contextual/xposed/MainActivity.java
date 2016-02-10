@@ -2,6 +2,7 @@ package net.madnation.zeus.contextual.xposed;
 
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -62,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        PackageManager pkg = this.getPackageManager();
+        if (pkg.getComponentEnabledSetting(new ComponentName(this, PACKAGE_NAME + ".show_ic")) == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+            MenuItem mi = menu.findItem(R.id.HideShow);
+            mi.setChecked(true);
+        }
         return true;
     }
 
@@ -70,6 +76,15 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.RestartUI:
                 (new RestartSystemUI()).execute();
+                return true;
+            case R.id.HideShow:
+                PackageManager pkg = this.getPackageManager();
+                if (!item.isChecked()) {
+                    pkg.setComponentEnabledSetting(new ComponentName(this, PACKAGE_NAME + ".show_ic"), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                } else {
+                    pkg.setComponentEnabledSetting(new ComponentName(this, PACKAGE_NAME + ".show_ic"), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+                }
+                item.setChecked(!item.isChecked());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

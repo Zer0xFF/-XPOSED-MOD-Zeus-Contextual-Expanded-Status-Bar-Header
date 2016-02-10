@@ -4,4 +4,9 @@
         android:id="@+id/RestartUI"
         android:title="RestartUI"
         />
+    <item
+        android:id="@+id/HideShow"
+        android:title="Hide App from launcher"
+        android:checkable="true"
+        />
 </menu>

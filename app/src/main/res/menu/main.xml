@@ -9,4 +9,8 @@
         android:title="Hide App from launcher"
         android:checkable="true"
         />
+    <item
+        android:id="@+id/AboutUs"
+        android:title="About Us"
+        />
 </menu>

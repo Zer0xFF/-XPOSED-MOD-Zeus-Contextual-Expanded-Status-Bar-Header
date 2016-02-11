@@ -86,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 item.setChecked(!item.isChecked());
                 return true;
+            case R.id.AboutUs:
+                Intent intent = new Intent(this, AboutUs.class);
+                startActivity(intent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

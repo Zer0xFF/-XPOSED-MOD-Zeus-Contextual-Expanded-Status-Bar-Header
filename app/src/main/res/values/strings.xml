@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Zeus Contextual Expanded Status Header</string>
+    <string name="aboutus3">I\'ve also made this module open source for those who\'d like to to contribute or see how it runs, you can find it over at <a href="https://github.com/Thunder07/-XPOSED-MOD-Zeus-Contextual-Expanded-Status-Bar-Header/" rel="nofollow">Gitub</a> and we have a discussion thread over at <a href="http://forum.xda-developers.com/xposed/modules/mod-zeus-contextual-expanded-status-t3304965" rel="nofollow">XDA</a> if you\'d like to suggest something.</string>
+    <string name="aboutus4">Link to original photo\'s used in this module <a href="https://github.com/Thunder07/-XPOSED-MOD-Zeus-Contextual-Expanded-Status-Bar-Header/blob/master/app/src/main/assets/PHOTO_CREDIT" rel="nofollow">Photo Credit</a>.</string>
 </resources>

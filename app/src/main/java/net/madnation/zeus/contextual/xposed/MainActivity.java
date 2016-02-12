@@ -2,7 +2,9 @@ package net.madnation.zeus.contextual.xposed;
 
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,7 +16,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,8 +31,12 @@ import android.widget.TextView;
 
 import com.yalantis.ucrop.UCrop;
 
+import net.yazeed44.imagepicker.model.ImageEntry;
+import net.yazeed44.imagepicker.util.Picker;
+
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import eu.chainfire.libsuperuser.Shell;
@@ -241,39 +246,6 @@ public class MainActivity extends AppCompatActivity {
             final Throwable cropError = UCrop.getError(data);
             if (cropError != null) cropError.printStackTrace();
         }
-
-        if (resultCode == RESULT_OK && requestCode == IMAGE_PICKER) {
-            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
-            if (!dir.exists()) {
-                dir.mkdir();
-                File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
-                if (!nomedia.exists()) {
-                    nomedia.exists();
-                }
-            }
-
-            String img_name;
-            switch (IMAGE_REQ) {
-                default:
-                case MORNING_REQ://"Morning":
-                    img_name = "MORNING_BG";
-                    break;
-                case AFTERNOON_REQ://"Afternoon":
-                    img_name = "AFTERNOON_BG";
-                    break;
-                case EVENING_REQ://"Evening":
-                    img_name = "EVENING_BG";
-                    break;
-                case NIGHT_REQ://"Night":
-                    img_name = "NIGHT_BG";
-                    break;
-            }
-            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + ".jpg"));
-            UCrop.of(data.getData(), destURI)
-                    .withAspectRatio(14, 8)
-                    .start(this);
-
-        }
     }
 
     class ViewHolder {
@@ -298,8 +270,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isEnable) {
-                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
                     String resName = v.getContext().getResources().getResourceEntryName(v.getId());
                     switch (resName) {
                         case "Morning":
@@ -315,8 +285,12 @@ public class MainActivity extends AppCompatActivity {
                             IMAGE_REQ = NIGHT_REQ;
                             break;
                     }
-                    ((MainActivity) v.getContext()).startActivityForResult(intent, IMAGE_PICKER);
                     //Show selector
+                    new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
+                            .setPickMode(Picker.PickMode.SINGLE_IMAGE)
+                            .disableCaptureImageFromCamera()
+                            .build()
+                            .startActivity();
                 }
             }
         };
@@ -358,6 +332,53 @@ public class MainActivity extends AppCompatActivity {
                 eveningTV.setTextColor(Color.GRAY);
                 nightTV.setTextColor(Color.GRAY);
             }
+        }
+    }
+
+    class MyPickListener implements Picker.PickListener {
+
+        private Context context;
+
+        public MyPickListener(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onPickedSuccessfully(ArrayList<ImageEntry> images) {
+            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
+            if (!dir.exists()) {
+                dir.mkdir();
+                File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
+                if (!nomedia.exists()) {
+                    nomedia.exists();
+                }
+            }
+
+            String img_name;
+            switch (IMAGE_REQ) {
+                default:
+                case MORNING_REQ://"Morning":
+                    img_name = "MORNING_BG";
+                    break;
+                case AFTERNOON_REQ://"Afternoon":
+                    img_name = "AFTERNOON_BG";
+                    break;
+                case EVENING_REQ://"Evening":
+                    img_name = "EVENING_BG";
+                    break;
+                case NIGHT_REQ://"Night":
+                    img_name = "NIGHT_BG";
+                    break;
+            }
+            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + ".jpg"));
+            Uri srcURI = Uri.fromFile(new File(images.get(0).path));
+            UCrop.of(srcURI, destURI).withAspectRatio(14, 8).start((Activity) context);
+
+        }
+
+        @Override
+        public void onCancel() {
+
         }
     }
 }

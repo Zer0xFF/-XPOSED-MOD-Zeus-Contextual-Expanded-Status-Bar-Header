@@ -171,9 +171,9 @@ public class TopCropImageView extends ImageView {
                 };
                 break;
         }
-        CURRENT_BG = currentTime;
         try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
             setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
+            CURRENT_BG = currentTime;
         } catch (Exception e) {
             e.printStackTrace();
         }

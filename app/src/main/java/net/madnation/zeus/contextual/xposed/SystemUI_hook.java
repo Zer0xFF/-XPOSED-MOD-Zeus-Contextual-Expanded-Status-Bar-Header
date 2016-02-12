@@ -25,13 +25,11 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
         if (!lpparam.packageName.equals("com.android.systemui"))
             return;
 
-        String layoutName;
+        String layoutName = "status_bar_expanded_header";
         if (lpparam.res.getIdentifier("zz_moto_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
           layoutName = "zz_moto_status_bar_expanded_header";
         } else if (lpparam.res.getIdentifier("asus_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
             layoutName = "asus_status_bar_expanded_header";
-        } else {
-            layoutName = "status_bar_expanded_header";
         }
 
 
@@ -42,7 +40,6 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                 ViewGroup VG = (ViewGroup) liparam.view;
                 boolean isImageView = VG.getChildAt(0).getClass().getName() == net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName();
 
-                TopCropImageView IV;
                 if (!isImageView) {
                     XSharedPreferences prefs = new XSharedPreferences(PACKAGE_NAME, PACKAGE_NAME);
                     prefs.reload();
@@ -50,7 +47,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                     XposedBridge.log("pref loc " + prefs.getFile().getAbsolutePath());
 
                     XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
-                    IV = new TopCropImageView(VG.getContext(), modRes, prefs);
+                    TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes, prefs);
                     IV.setMinimumWidth(VG.getWidth());
                     IV.setMinimumHeight(VG.getHeight());
 

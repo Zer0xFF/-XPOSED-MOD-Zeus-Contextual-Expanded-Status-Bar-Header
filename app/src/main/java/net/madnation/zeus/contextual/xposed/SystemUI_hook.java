@@ -26,17 +26,26 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
             return;
 
         String layoutName = "status_bar_expanded_header";
+        int padding = 0;
         if (lpparam.res.getIdentifier("zz_moto_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
           layoutName = "zz_moto_status_bar_expanded_header";
         } else if (lpparam.res.getIdentifier("asus_status_bar_expanded_header", "layout", "com.android.systemui") != 0) {
             layoutName = "asus_status_bar_expanded_header";
+            int dimens_id = lpparam.res.getIdentifier("asus_quicksetting_panel_header_padding_bottom", "dimen", "com.android.systemui");
+            if (dimens_id != 0) {
+                padding = (int) lpparam.res.getDimension(dimens_id);
+            }
         }
 
 
+        final int finalPadding = padding;
         lpparam.res.hookLayout("com.android.systemui", "layout", layoutName, new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(final LayoutInflatedParam liparam) throws Throwable {
                 ViewGroup navbar = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("header", "id", "com.android.systemui"));
+                if (finalPadding != 0) {
+                    navbar.setPadding(navbar.getPaddingLeft(), navbar.getPaddingTop(), navbar.getPaddingRight(), 0);
+                }
                 ViewGroup VG = (ViewGroup) liparam.view;
                 boolean isImageView = VG.getChildAt(0).getClass().getName() == net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName();
 
@@ -49,7 +58,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                     XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
                     TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes, prefs);
                     IV.setMinimumWidth(VG.getWidth());
-                    IV.setMinimumHeight(VG.getHeight());
+                    IV.setMinimumHeight(VG.getHeight() + finalPadding);
 
                     LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                     navbar.addView(IV, 0, p);

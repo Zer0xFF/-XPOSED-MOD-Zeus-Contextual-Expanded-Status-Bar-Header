@@ -295,6 +295,50 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        private final View.OnLongClickListener LCL = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View v) {
+                if (isEnable) {
+                    final String resName = v.getContext().getResources().getResourceEntryName(v.getId());
+                    final String imageName = resName.toUpperCase() + "_BG";
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
+                    alertDialogBuilder.setMessage("Are you sure, you're going to reset the image?");
+
+                    alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
+                            sp.edit().remove(imageName).apply();
+                            switch (resName) {
+                                case "Morning":
+                                    VH.morningIV.setImageResource(R.drawable.morning_dew_boris_mitendorfer_photography);
+                                    break;
+                                case "Afternoon":
+                                    VH.afternoonIV.setImageResource(R.drawable.afternoon_brooklyn_bridge_andrew_mace);
+                                    break;
+                                case "Evening":
+                                    VH.eveningIV.setImageResource(R.drawable.evening_singapore_jurek_d);
+                                    break;
+                                case "Night":
+                                    VH.nightIV.setImageResource(R.drawable.night_starry_night_shawn_harquail);
+                                    break;
+                            }
+                        }
+                    });
+
+                    alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+                return true;
+            }
+        };
+
         ViewHolder(MainActivity itemView) {
             morningTV = (TextView) itemView.findViewById(R.id.Morning_textview);
             afternoonTV = (TextView) itemView.findViewById(R.id.Afternoon_textview);
@@ -316,6 +360,11 @@ public class MainActivity extends AppCompatActivity {
             afternoonView.setOnClickListener(CL);
             eveningView.setOnClickListener(CL);
             nightView.setOnClickListener(CL);
+
+            morningView.setOnLongClickListener(LCL);
+            afternoonView.setOnLongClickListener(LCL);
+            eveningView.setOnLongClickListener(LCL);
+            nightView.setOnLongClickListener(LCL);
         }
 
         void setTextView(boolean isEnable) {

@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     private void Startup() {
         VH = new ViewHolder(this);
 
-        final SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_WRITEABLE);
+        final SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
 
         if (sp.getString("MORNING_BG", null)!=null) {
             String BG = sp.getString("MORNING_BG", null);
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             if (bitmap != null) {
-                SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_WRITEABLE);
+                SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
                 switch (IMAGE_REQ) {
                     default:
                     case MORNING_REQ://"Morning":
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
 
         void setTextView(boolean isEnable) {
             this.isEnable = isEnable;
-            getSharedPreferences(PACKAGE_NAME, MODE_WORLD_WRITEABLE).edit().putBoolean("isCustom", isEnable).apply();
+            getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE).edit().putBoolean("isCustom", isEnable).apply();
             if (isEnable) {
                 morningTV.setTextColor(Color.BLACK);
                 afternoonTV.setTextColor(Color.BLACK);

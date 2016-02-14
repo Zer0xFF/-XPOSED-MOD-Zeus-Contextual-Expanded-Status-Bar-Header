@@ -35,6 +35,7 @@ import net.yazeed44.imagepicker.model.ImageEntry;
 import net.yazeed44.imagepicker.util.Picker;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -397,9 +398,13 @@ public class MainActivity extends AppCompatActivity {
             File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
             if (!dir.exists()) {
                 dir.mkdir();
-                File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
-                if (!nomedia.exists()) {
-                    nomedia.exists();
+            }
+            File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
+            if (!nomedia.exists()) {
+                try {
+                    nomedia.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 

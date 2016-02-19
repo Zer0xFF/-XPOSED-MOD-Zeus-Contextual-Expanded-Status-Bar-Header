@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -247,6 +248,44 @@ public class MainActivity extends AppCompatActivity {
             final Throwable cropError = UCrop.getError(data);
             if (cropError != null) cropError.printStackTrace();
         }
+
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICKER) {
+            ImageEditor(this, data.getData());
+        }
+    }
+
+    private void ImageEditor(Context context, Uri srcURI) {
+        File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
+        if (!nomedia.exists()) {
+            try {
+                nomedia.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String img_name;
+        switch (IMAGE_REQ) {
+            default:
+            case MORNING_REQ://"Morning":
+                img_name = "MORNING_BG";
+                break;
+            case AFTERNOON_REQ://"Afternoon":
+                img_name = "AFTERNOON_BG";
+                break;
+            case EVENING_REQ://"Evening":
+                img_name = "EVENING_BG";
+                break;
+            case NIGHT_REQ://"Night":
+                img_name = "NIGHT_BG";
+                break;
+        }
+        Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + ".jpg"));
+        UCrop.of(srcURI, destURI).withAspectRatio(14, 8).start((Activity) context);
     }
 
     class ViewHolder {
@@ -269,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
 
         private final View.OnClickListener CL = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 if (isEnable) {
                     String resName = v.getContext().getResources().getResourceEntryName(v.getId());
                     switch (resName) {
@@ -287,11 +326,35 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                     //Show selector
-                    new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
-                            .setPickMode(Picker.PickMode.SINGLE_IMAGE)
-                            .disableCaptureImageFromCamera()
-                            .build()
-                            .startActivity();
+                    final Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    final PackageManager mgr = getPackageManager();
+                    List<ResolveInfo> list = mgr.queryIntentActivities(i, PackageManager.MATCH_DEFAULT_ONLY);
+                    if (list.size() > 0) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                        builder.setTitle("Pick a image picker");
+                        String options[] = new String[]{"Built-in Image Picker", "External Image Picker"};
+                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == 0) {
+                                    new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
+                                            .setPickMode(Picker.PickMode.SINGLE_IMAGE)
+                                            .disableCaptureImageFromCamera()
+                                            .build()
+                                            .startActivity();
+                                } else {
+                                    startActivityForResult(i, IMAGE_PICKER);
+                                }
+                            }
+                        });
+                        builder.show();
+                    } else {
+                        new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
+                                .setPickMode(Picker.PickMode.SINGLE_IMAGE)
+                                .disableCaptureImageFromCamera()
+                                .build()
+                                .startActivity();
+                    }
                 }
             }
         };
@@ -395,39 +458,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onPickedSuccessfully(ArrayList<ImageEntry> images) {
-            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
-            if (!dir.exists()) {
-                dir.mkdir();
-            }
-            File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
-            if (!nomedia.exists()) {
-                try {
-                    nomedia.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String img_name;
-            switch (IMAGE_REQ) {
-                default:
-                case MORNING_REQ://"Morning":
-                    img_name = "MORNING_BG";
-                    break;
-                case AFTERNOON_REQ://"Afternoon":
-                    img_name = "AFTERNOON_BG";
-                    break;
-                case EVENING_REQ://"Evening":
-                    img_name = "EVENING_BG";
-                    break;
-                case NIGHT_REQ://"Night":
-                    img_name = "NIGHT_BG";
-                    break;
-            }
-            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + ".jpg"));
-            Uri srcURI = Uri.fromFile(new File(images.get(0).path));
-            UCrop.of(srcURI, destURI).withAspectRatio(14, 8).start((Activity) context);
-
+            ImageEditor(context, Uri.fromFile(new File(images.get(0).path)));
         }
 
         @Override

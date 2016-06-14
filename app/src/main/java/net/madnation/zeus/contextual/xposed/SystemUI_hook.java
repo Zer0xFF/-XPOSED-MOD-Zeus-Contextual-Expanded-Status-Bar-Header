@@ -47,7 +47,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                     navbar.setPadding(navbar.getPaddingLeft(), navbar.getPaddingTop(), navbar.getPaddingRight(), 0);
                 }
                 ViewGroup VG = (ViewGroup) liparam.view;
-                boolean isImageView = VG.getChildAt(0).getClass().getName() == net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName();
+                boolean isImageView = VG.getChildAt(0).getClass().getName().equals(net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName());
 
                 if (!isImageView) {
                     XSharedPreferences prefs = new XSharedPreferences(PACKAGE_NAME, PACKAGE_NAME);

@@ -6,11 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Random;
@@ -21,17 +23,20 @@ import de.robv.android.xposed.XSharedPreferences;
  * ImageView to display top-crop scale of an image view.
  *
  * @author Chris Arriola
- * @Source https://gist.github.com/arriolac/3843346
+ * @Source based on https://gist.github.com/arriolac/3843346
  */
 public class TopCropImageView extends ImageView {
 
     private XModuleResources modRes = null;
-    private XSharedPreferences prefs = null;
+    private SettingsManager sm;
+
     private static int CURRENT_BG = -1;
+
     private final int MORNING_BG = 0;
     private final int AFTERNOON_BG = 1;
     private final int EVENING_BG = 2;
     private final int NIGHT_BG = 3;
+    private boolean FORCE_BG = false;
 
     private final int MORNING_START = 3;
     private final int AFTERNOON_START = 12;
@@ -43,7 +48,8 @@ public class TopCropImageView extends ImageView {
         super(context);
         setScaleType(ScaleType.MATRIX);
         this.modRes = modRes;
-        this.prefs = prefs;
+        this.sm = new SettingsManager();
+        sm.loadSettings();
     }
 
     public TopCropImageView(Context context, AttributeSet attributeSet) {
@@ -61,14 +67,14 @@ public class TopCropImageView extends ImageView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         Log.e("Zeus_SystemUI", "onLayout, Called");
-        if (prefs != null && modRes != null) {
-            final int currentTime = currentTime();
+        if (sm != null && modRes != null) {
+            final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
             boolean isToUpdate = (CURRENT_BG == -1) || CURRENT_BG != currentTime;
 
             Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
             if (isToUpdate) {
-                prefs.reload();
-                boolean isCustom = prefs.getBoolean("isCustom", false);
+                sm.reload();
+                boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
                 Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
                 if (isCustom) {
                     setCustomBackground(currentTime);
@@ -172,7 +178,11 @@ public class TopCropImageView extends ImageView {
                 break;
         }
         try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
-            setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
+            if (!FORCE_BG) {
+                setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
+            } else {
+                setImageResource(drawerIDarr[new Random().nextInt(drawerIDarr.length)]);
+            }
             CURRENT_BG = currentTime;
         } catch (Exception e) {
             e.printStackTrace();
@@ -195,14 +205,29 @@ public class TopCropImageView extends ImageView {
                 BG = "NIGHT_BG";
                 break;
         }
-        BG = prefs.getString(BG, null);
-        if (BG != null) {
-            File file = new File(BG);
-            if (file.exists()) {
-                Bitmap img = BitmapFactory.decodeFile(BG);
-                CURRENT_BG = currentTime;
-                setImageBitmap(img);
-                return;
+
+        File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + BG);
+
+        if (dir != null && dir.exists() && dir.isDirectory()) {
+            File BG_image;
+            ArrayList<File> images = new ArrayList();
+
+            for (File childfile : dir.listFiles()) {
+                if (childfile.isFile()) {
+                    if (childfile.getName().toLowerCase().contains(".jpg") || childfile.getName().toLowerCase().contains(".png")) {
+                        images.add(childfile);
+                    }
+                }
+            }
+            if (!images.isEmpty()) {
+                BG_image = images.get(new Random().nextInt(images.size()));
+
+                if (BG_image != null && BG_image.exists()) {
+                    Bitmap img = BitmapFactory.decodeFile(BG_image.getAbsolutePath());
+                    CURRENT_BG = currentTime;
+                    setImageBitmap(img);
+                    return;
+                }
             }
         }
         setRandomBackground(currentTime);

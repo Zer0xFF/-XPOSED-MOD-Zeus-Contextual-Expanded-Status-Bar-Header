@@ -47,6 +47,7 @@ public class TopCropImageView extends ImageView {
     public TopCropImageView(Context context, XModuleResources modRes, XSharedPreferences prefs) {
         super(context);
         setScaleType(ScaleType.MATRIX);
+        setClipToOutline(true);
         this.modRes = modRes;
         this.sm = new SettingsManager();
         sm.loadSettings();

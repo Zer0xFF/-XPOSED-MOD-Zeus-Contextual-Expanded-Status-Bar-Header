@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="net.madnation.zeus.contextual.xposed"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="net.madnation.zeus.contextual.xposed"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -47,6 +46,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".AboutUs">
+        </activity>
+        <activity android:name=".FileBrowser">
         </activity>
     </application>
 

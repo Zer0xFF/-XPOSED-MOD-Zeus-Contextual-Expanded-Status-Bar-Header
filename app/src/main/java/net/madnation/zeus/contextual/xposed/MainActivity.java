@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -26,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.yalantis.ucrop.UCrop;
@@ -35,9 +35,11 @@ import net.yazeed44.imagepicker.model.ImageEntry;
 import net.yazeed44.imagepicker.util.Picker;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import eu.chainfire.libsuperuser.Shell;
 
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int IMAGE_PICKER = 1010;
     private static int IMAGE_REQ = -1;
     private ViewHolder VH;
+    private SettingsManager sm;
+
     private final int MORNING_REQ = 2001;
     private final int AFTERNOON_REQ = 2002;
     private final int EVENING_REQ = 2003;
@@ -114,59 +118,20 @@ public class MainActivity extends AppCompatActivity {
     private void Startup() {
         VH = new ViewHolder(this);
 
-        final SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
-
-        if (sp.getString("MORNING_BG", null)!=null) {
-            String BG = sp.getString("MORNING_BG", null);
-            if (BG != null) {
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    VH.morningIV.setImageBitmap(img);
-                }
-
-            }
-        }
-        if (sp.getString("EVENING_BG", null)!=null){String BG = sp.getString("EVENING_BG", null);
-            if (BG != null) {
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    VH.eveningIV.setImageBitmap(img);
-                }
-
-            }
-        }
-        if (sp.getString("AFTERNOON_BG", null)!=null){String BG = sp.getString("AFTERNOON_BG", null);
-            if (BG != null) {
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    VH.afternoonIV.setImageBitmap(img);
-                }
-
-            }
-        }
-        if (sp.getString("NIGHT_BG", null)!=null){String BG = sp.getString("NIGHT_BG", null);
-            if (BG != null) {
-                File file = new File(BG);
-                if (file.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG);
-                    VH.nightIV.setImageBitmap(img);
-                }
-
-            }
-        }
-
+        sm = new SettingsManager();
+        sm.loadSettings();
         CheckBox cb = (CheckBox) findViewById(R.id.checkBox);
+
+        VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
+        cb.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
+
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sm.setBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, isChecked);
                 VH.setTextView(isChecked);
-                sp.edit().putBoolean("isCustom", isChecked).apply();
             }
         });
-        cb.setChecked(sp.getBoolean("isCustom", false));
         cb.setEnabled(true);
     }
 
@@ -246,6 +211,49 @@ public class MainActivity extends AppCompatActivity {
             final Throwable cropError = UCrop.getError(data);
             if (cropError != null) cropError.printStackTrace();
         }
+
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICKER) {
+            ImageEditor(this, data.getData());
+        }
+    }
+
+    private void ImageEditor(Context context, Uri srcURI) {
+        String img_name;
+        switch (IMAGE_REQ) {
+            default:
+            case MORNING_REQ://"Morning":
+                img_name = "MORNING_BG";
+                break;
+            case AFTERNOON_REQ://"Afternoon":
+                img_name = "AFTERNOON_BG";
+                break;
+            case EVENING_REQ://"Evening":
+                img_name = "EVENING_BG";
+                break;
+            case NIGHT_REQ://"Night":
+                img_name = "NIGHT_BG";
+                break;
+        }
+
+        File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + "/");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
+        if (!nomedia.exists()) {
+            try {
+                nomedia.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Uri destURI = Uri.fromFile(new File(dir.getAbsolutePath() + "/" + RNDHash() + "_" + img_name + ".jpg"));
+        UCrop.of(srcURI, destURI).withAspectRatio(14, 8).start((Activity) context);
+    }
+
+    private String RNDHash() {
+        return (String) UUID.randomUUID().toString().replaceAll("-", "").subSequence(0, 7);
+
     }
 
     class ViewHolder {
@@ -259,16 +267,16 @@ public class MainActivity extends AppCompatActivity {
         private final TextView eveningTV;
         private final TextView nightTV;
 
-        public final ImageView morningIV;
-        public final ImageView afternoonIV;
-        public final ImageView eveningIV;
-        public final ImageView nightIV;
+        public final TopCropImageView morningIV;
+        public final TopCropImageView afternoonIV;
+        public final TopCropImageView eveningIV;
+        public final TopCropImageView nightIV;
 
         private boolean isEnable = false;
 
         private final View.OnClickListener CL = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 if (isEnable) {
                     String resName = v.getContext().getResources().getResourceEntryName(v.getId());
                     switch (resName) {
@@ -285,12 +293,103 @@ public class MainActivity extends AppCompatActivity {
                             IMAGE_REQ = NIGHT_REQ;
                             break;
                     }
-                    //Show selector
-                    new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
-                            .setPickMode(Picker.PickMode.SINGLE_IMAGE)
-                            .disableCaptureImageFromCamera()
-                            .build()
-                            .startActivity();
+                    {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                        builder.setTitle("Choose Option");
+                        String options[] = new String[]{"Add Image", "Remove Image(s)", "Reset To Default"};
+                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == 0) {
+                                    //Show selector
+                                    final Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    final PackageManager mgr = getPackageManager();
+                                    List<ResolveInfo> list = mgr.queryIntentActivities(i, PackageManager.MATCH_DEFAULT_ONLY);
+                                    if (list.size() > 0) {
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                                        builder.setTitle("Pick a image picker");
+                                        String options[] = new String[]{"Built-in Image Picker", "External Image Picker"};
+                                        builder.setItems(options, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                if (which == 0) {
+                                                    new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
+                                                            .setPickMode(Picker.PickMode.SINGLE_IMAGE)
+                                                            .disableCaptureImageFromCamera()
+                                                            .build()
+                                                            .startActivity();
+                                                } else {
+                                                    startActivityForResult(i, IMAGE_PICKER);
+                                                }
+                                            }
+                                        });
+                                        builder.show();
+                                    } else {
+                                        new Picker.Builder(v.getContext(), new MyPickListener(v.getContext()), R.style.MIP)
+                                                .setPickMode(Picker.PickMode.SINGLE_IMAGE)
+                                                .disableCaptureImageFromCamera()
+                                                .build()
+                                                .startActivity();
+                                    }
+                                } else if (which == 1) {
+                                    final String resName = v.getContext().getResources().getResourceEntryName(v.getId());
+                                    final String folderName = resName.toUpperCase() + "_BG";
+                                    Intent intent = new Intent(v.getContext(), FileBrowser.class);
+                                    intent.putExtra("folderName", folderName);
+                                    startActivity(intent);
+
+                                } else if (which == 2) {
+
+                                    final String resName = v.getContext().getResources().getResourceEntryName(v.getId());
+                                    final String folderName = resName.toUpperCase() + "_BG";
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(v.getContext());
+                                    alertDialogBuilder.setMessage("Are you sure, you're going to reset the image?");
+
+                                    alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface arg0, int arg1) {
+                                            SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
+                                            sp.edit().remove(folderName).apply();
+                                            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + folderName);
+                                            if (dir.isDirectory()) {
+                                                String[] children = dir.list();
+                                                for (int i = 0; i < children.length; i++) {
+                                                    File subfile = new File(dir, children[i]);
+                                                    if (subfile.isFile()) {
+                                                        subfile.delete();
+                                                    }
+                                                }
+                                            }
+                                            switch (resName) {
+                                                case "Morning":
+                                                    VH.morningIV.setImageResource(R.drawable.morning_niall_stopford);
+                                                    break;
+                                                case "Afternoon":
+                                                    VH.afternoonIV.setImageResource(R.drawable.afternoon_brooklyn_bridge_andrew_mace);
+                                                    break;
+                                                case "Evening":
+                                                    VH.eveningIV.setImageResource(R.drawable.evening_singapore_jurek_d);
+                                                    break;
+                                                case "Night":
+                                                    VH.nightIV.setImageResource(R.drawable.night_starry_night_shawn_harquail);
+                                                    break;
+                                            }
+                                        }
+                                    });
+
+                                    alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                        }
+                                    });
+
+                                    AlertDialog alertDialog = alertDialogBuilder.create();
+                                    alertDialog.show();
+                                }
+                            }
+                        });
+                        builder.show();
+                    }
                 }
             }
         };
@@ -307,20 +406,24 @@ public class MainActivity extends AppCompatActivity {
             eveningView = itemView.findViewById(R.id.Evening);
             nightView = itemView.findViewById(R.id.Night);
 
-            morningIV = (ImageView) itemView.findViewById(R.id.MorningIV);
-            afternoonIV = (ImageView) itemView.findViewById(R.id.AfternoonIV);
-            eveningIV = (ImageView) itemView.findViewById(R.id.EveningIV);
-            nightIV = (ImageView) itemView.findViewById(R.id.NightIV);
+            morningIV = (TopCropImageView) itemView.findViewById(R.id.MorningIV);
+            afternoonIV = (TopCropImageView) itemView.findViewById(R.id.AfternoonIV);
+            eveningIV = (TopCropImageView) itemView.findViewById(R.id.EveningIV);
+            nightIV = (TopCropImageView) itemView.findViewById(R.id.NightIV);
 
             morningView.setOnClickListener(CL);
             afternoonView.setOnClickListener(CL);
             eveningView.setOnClickListener(CL);
             nightView.setOnClickListener(CL);
+
+            morningIV.setBG(0);
+            afternoonIV.setBG(1);
+            eveningIV.setBG(2);
+            nightIV.setBG(3);
         }
 
         void setTextView(boolean isEnable) {
             this.isEnable = isEnable;
-            getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE).edit().putBoolean("isCustom", isEnable).apply();
             if (isEnable) {
                 morningTV.setTextColor(Color.BLACK);
                 afternoonTV.setTextColor(Color.BLACK);
@@ -345,35 +448,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onPickedSuccessfully(ArrayList<ImageEntry> images) {
-            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/");
-            if (!dir.exists()) {
-                dir.mkdir();
-                File nomedia = new File(dir.getAbsolutePath(), ".nomedia");
-                if (!nomedia.exists()) {
-                    nomedia.exists();
-                }
-            }
-
-            String img_name;
-            switch (IMAGE_REQ) {
-                default:
-                case MORNING_REQ://"Morning":
-                    img_name = "MORNING_BG";
-                    break;
-                case AFTERNOON_REQ://"Afternoon":
-                    img_name = "AFTERNOON_BG";
-                    break;
-                case EVENING_REQ://"Evening":
-                    img_name = "EVENING_BG";
-                    break;
-                case NIGHT_REQ://"Night":
-                    img_name = "NIGHT_BG";
-                    break;
-            }
-            Uri destURI = Uri.fromFile(new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + ".jpg"));
-            Uri srcURI = Uri.fromFile(new File(images.get(0).path));
-            UCrop.of(srcURI, destURI).withAspectRatio(14, 8).start((Activity) context);
-
+            ImageEditor(context, Uri.fromFile(new File(images.get(0).path)));
         }
 
         @Override

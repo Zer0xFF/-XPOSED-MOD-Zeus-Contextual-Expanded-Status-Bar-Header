@@ -232,4 +232,11 @@ public class TopCropImageView extends ImageView {
         }
         setRandomBackground(currentTime);
     }
+
+    public void setBG(int BG) {
+        FORCE_BG = true;
+        CURRENT_BG = BG;
+        final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
+        setCustomBackground(currentTime);
+    }
 }

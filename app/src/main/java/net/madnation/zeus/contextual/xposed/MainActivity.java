@@ -416,6 +416,10 @@ public class MainActivity extends AppCompatActivity {
             eveningView.setOnClickListener(CL);
             nightView.setOnClickListener(CL);
 
+            morningIV.setBG(0);
+            afternoonIV.setBG(1);
+            eveningIV.setBG(2);
+            nightIV.setBG(3);
         }
 
         void setTextView(boolean isEnable) {

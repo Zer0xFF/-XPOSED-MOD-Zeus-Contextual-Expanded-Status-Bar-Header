@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
             boolean suAvailable = Shell.SU.available();
             if (suAvailable) {
-                List<String> suResult = Shell.SU.run(new String[]{"pkill -l 9 -f com.android.systemui"});
+                List<String> suResult = Shell.SU.run(new String[]{"pkill -l 9 -f com.android.systemui", "killall com.android.systemui"});
             }
             return null;
         }

@@ -26,7 +26,10 @@ public class SettingsManager {
     private HashMap<String, Boolean> boolPref = new HashMap<>();
 
     public SettingsManager() {
+    }
 
+    public SettingsManager(boolean loadsettings) {
+        if (loadsettings) loadSettings();
     }
 
     public void saveSettings() {
@@ -59,6 +62,9 @@ public class SettingsManager {
     }
 
     private void writeToFile(String data) {
+        File dir = new File(path);
+        if (!dir.exists())
+            dir.mkdirs();
         try {
             FileOutputStream fos = new FileOutputStream(new File(path, "config.json"));
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos);

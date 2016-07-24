@@ -17,8 +17,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
-import de.robv.android.xposed.XSharedPreferences;
-
 /**
  * ImageView to display top-crop scale of an image view.
  *
@@ -44,13 +42,12 @@ public class TopCropImageView extends ImageView {
     private final int NIGHT_START = 21;
 
 
-    public TopCropImageView(Context context, XModuleResources modRes, XSharedPreferences prefs) {
+    public TopCropImageView(Context context, XModuleResources modRes) {
         super(context);
         setScaleType(ScaleType.MATRIX);
         setClipToOutline(true);
         this.modRes = modRes;
-        this.sm = new SettingsManager();
-        sm.loadSettings();
+        this.sm = new SettingsManager(true);
     }
 
     public TopCropImageView(Context context, AttributeSet attributeSet) {
@@ -211,7 +208,7 @@ public class TopCropImageView extends ImageView {
 
         if (dir != null && dir.exists() && dir.isDirectory()) {
             File BG_image;
-            ArrayList<File> images = new ArrayList();
+            ArrayList<File> images = new ArrayList<>();
 
             for (File childfile : dir.listFiles()) {
                 if (childfile.isFile()) {
@@ -237,7 +234,6 @@ public class TopCropImageView extends ImageView {
     public void setBG(int BG) {
         FORCE_BG = true;
         CURRENT_BG = BG;
-        final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
-        setCustomBackground(currentTime);
+        setCustomBackground(BG);
     }
 }

@@ -6,8 +6,6 @@ import android.widget.LinearLayout;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookZygoteInit;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 
@@ -50,13 +48,8 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                 boolean isImageView = VG.getChildAt(0).getClass().getName().equals(net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName());
 
                 if (!isImageView) {
-                    XSharedPreferences prefs = new XSharedPreferences(PACKAGE_NAME, PACKAGE_NAME);
-                    prefs.reload();
-                    prefs.makeWorldReadable();
-                    XposedBridge.log("pref loc " + prefs.getFile().getAbsolutePath());
-
                     XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
-                    TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes, prefs);
+                    TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes);
                     IV.setMinimumWidth(VG.getWidth());
                     IV.setMinimumHeight(VG.getHeight() + finalPadding);
 

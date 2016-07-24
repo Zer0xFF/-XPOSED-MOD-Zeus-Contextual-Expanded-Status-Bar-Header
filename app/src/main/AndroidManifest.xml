@@ -18,7 +18,7 @@
             android:value="Enable Time Based Expanded Status Bar Background"/>
         <meta-data
             android:name="xposedminversion"
-            android:value="54"/>
+            android:value="82"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>

@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -118,8 +117,7 @@ public class MainActivity extends AppCompatActivity {
     private void Startup() {
         VH = new ViewHolder(this);
 
-        sm = new SettingsManager();
-        sm.loadSettings();
+        sm = new SettingsManager(true);
         CheckBox cb = (CheckBox) findViewById(R.id.checkBox);
 
         VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
@@ -186,24 +184,19 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             if (bitmap != null) {
-                SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
                 switch (IMAGE_REQ) {
                     default:
                     case MORNING_REQ://"Morning":
                         VH.morningIV.setImageBitmap(bitmap);
-                        sp.edit().putString("MORNING_BG", filePath).apply();
                         break;
                     case AFTERNOON_REQ://"Afternoon":
                         VH.afternoonIV.setImageBitmap(bitmap);
-                        sp.edit().putString("AFTERNOON_BG", filePath).apply();
                         break;
                     case EVENING_REQ://"Evening":
                         VH.eveningIV.setImageBitmap(bitmap);
-                        sp.edit().putString("EVENING_BG", filePath).apply();
                         break;
                     case NIGHT_REQ://"Night":
                         VH.nightIV.setImageBitmap(bitmap);
-                        sp.edit().putString("NIGHT_BG", filePath).apply();
                         break;
                 }
             }
@@ -348,8 +341,6 @@ public class MainActivity extends AppCompatActivity {
                                     alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface arg0, int arg1) {
-                                            SharedPreferences sp = getSharedPreferences(PACKAGE_NAME, MODE_WORLD_READABLE);
-                                            sp.edit().remove(folderName).apply();
                                             File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + folderName);
                                             if (dir.isDirectory()) {
                                                 String[] children = dir.list();
@@ -362,16 +353,16 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             switch (resName) {
                                                 case "Morning":
-                                                    VH.morningIV.setImageResource(R.drawable.morning_niall_stopford);
+                                                    VH.morningIV.setBG(0);
                                                     break;
                                                 case "Afternoon":
-                                                    VH.afternoonIV.setImageResource(R.drawable.afternoon_brooklyn_bridge_andrew_mace);
+                                                    VH.afternoonIV.setBG(1);
                                                     break;
                                                 case "Evening":
-                                                    VH.eveningIV.setImageResource(R.drawable.evening_singapore_jurek_d);
+                                                    VH.eveningIV.setBG(2);
                                                     break;
                                                 case "Night":
-                                                    VH.nightIV.setImageResource(R.drawable.night_starry_night_shawn_harquail);
+                                                    VH.nightIV.setBG(3);
                                                     break;
                                             }
                                         }

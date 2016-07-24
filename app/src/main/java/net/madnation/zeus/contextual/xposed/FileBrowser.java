@@ -53,13 +53,15 @@ public class FileBrowser extends AppCompatActivity implements ActionMode.Callbac
                     }
                 }
             }
-            if (!images.isEmpty()) {
+            if (!images.isEmpty() && images.size() > 0) {
                 int dim;
                 Point size = getSize();
                 if (size.x > size.y) {
                     dim = size.y / 2;
-                } else {
+                } else if (size.x < size.y) {
                     dim = size.x / 2;
+                } else {
+                    dim = 300;
                 }
 
                 final FileAdapter adapter = new FileAdapter(this, R.layout.file_item, dim, images);
@@ -103,7 +105,8 @@ public class FileBrowser extends AppCompatActivity implements ActionMode.Callbac
                         image.setSelection(false);
                     }
                 }
-                ((FileAdapter) gv.getAdapter()).notifyDataSetChanged();
+                if (gv != null && gv.getAdapter() != null)
+                    ((FileAdapter) gv.getAdapter()).notifyDataSetChanged();
                 return true;
             default:
                 return false;

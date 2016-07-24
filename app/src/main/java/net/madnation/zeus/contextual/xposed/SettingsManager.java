@@ -24,6 +24,7 @@ public class SettingsManager {
 
     private String path = Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/";
     private HashMap<String, Boolean> boolPref = new HashMap<>();
+    private boolean loadSettings;
 
     public SettingsManager() {
     }
@@ -56,8 +57,10 @@ public class SettingsManager {
                 String prefname = it.next().toString();
                 boolPref.put(prefname, jsonData.getBoolean(prefname));
             }
+            loadSettings = true;
         } catch (JSONException e) {
             e.printStackTrace();
+            loadSettings = false;
         }
     }
 
@@ -81,6 +84,7 @@ public class SettingsManager {
 
         try {
             FileInputStream fis = new FileInputStream(new File(path, "config.json"));
+            Log.i("Zeus", path);
 
             if (fis != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(fis);
@@ -117,5 +121,9 @@ public class SettingsManager {
     public void reload() {
         boolPref = new HashMap<>();
         loadSettings();
+    }
+
+    public boolean isLoadSettingError() {
+        return !loadSettings;
     }
 }

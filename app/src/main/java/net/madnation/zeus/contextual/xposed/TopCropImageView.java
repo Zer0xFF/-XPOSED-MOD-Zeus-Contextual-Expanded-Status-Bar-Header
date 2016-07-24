@@ -42,7 +42,7 @@ public class TopCropImageView extends ImageView {
     private final int NIGHT_START = 21;
 
 
-    public TopCropImageView(Context context, XModuleResources modRes) {
+    public TopCropImageView(Context context, XModuleResources modRes, int DummyValueToAvoidUIUsingThisConstructor) {
         super(context);
         setScaleType(ScaleType.MATRIX);
         setClipToOutline(true);
@@ -67,10 +67,15 @@ public class TopCropImageView extends ImageView {
         Log.e("Zeus_SystemUI", "onLayout, Called");
         if (sm != null && modRes != null) {
             final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
-            boolean isToUpdate = (CURRENT_BG == -1) || CURRENT_BG != currentTime;
+            boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
 
-            Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isToUpdate);
-            if (isToUpdate) {
+            if (sm.isLoadSettingError()) {
+                sm.reload();
+                if (!sm.isLoadSettingError()) isUpToDate = false;
+            }
+
+            Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
+            if (!isUpToDate) {
                 sm.reload();
                 boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
                 Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
@@ -176,7 +181,7 @@ public class TopCropImageView extends ImageView {
                 break;
         }
         try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
-            if (!FORCE_BG) {
+            if (!FORCE_BG && modRes != null) {
                 setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
             } else {
                 setImageResource(drawerIDarr[new Random().nextInt(drawerIDarr.length)]);

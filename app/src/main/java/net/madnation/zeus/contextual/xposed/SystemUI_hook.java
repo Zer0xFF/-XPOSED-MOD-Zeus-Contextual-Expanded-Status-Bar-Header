@@ -49,7 +49,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
 
                 if (!isImageView) {
                     XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
-                    TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes);
+                    TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes, 0);
                     IV.setMinimumWidth(VG.getWidth());
                     IV.setMinimumHeight(VG.getHeight() + finalPadding);
 

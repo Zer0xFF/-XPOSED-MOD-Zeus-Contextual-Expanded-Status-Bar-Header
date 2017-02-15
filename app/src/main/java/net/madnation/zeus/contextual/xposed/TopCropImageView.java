@@ -155,7 +155,7 @@ public class TopCropImageView extends ImageView {
                 drawerIDarr = new int[]{
                         R.drawable.morning_banna_leaf_threeheadedmonkey,
                         R.drawable.morning_niall_stopford,
-                        R.drawable.morning_dew_boris_mitendorfer_photography,
+                        R.drawable.morning_my_country_vasile_hurghis,
                 };
                 break;
             case AFTERNOON_BG:

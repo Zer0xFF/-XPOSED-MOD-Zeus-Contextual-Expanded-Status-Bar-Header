@@ -62,14 +62,13 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                 if (finalPadding != 0) {
                     navbar.setPadding(navbar.getPaddingLeft(), navbar.getPaddingTop(), navbar.getPaddingRight(), 0);
                 }
-                ViewGroup VG = (ViewGroup) liparam.view;
-                boolean isImageView = VG.getChildAt(0).getClass().getName().equals(net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName());
+                boolean isImageView = navbar.getChildAt(0).getClass().getName().equals(net.madnation.zeus.contextual.xposed.TopCropImageView.class.getName());
 
                 if (!isImageView) {
                     int statusbar_height = (int) liparam.res.getDimension(liparam.res.getIdentifier("status_bar_header_height", "dimen", "com.android.systemui"));
                     XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, lpparam.res);
-                    TopCropImageView IV = new TopCropImageView(VG.getContext(), modRes, 0);
-                    IV.setMinimumWidth(VG.getWidth());
+                    TopCropImageView IV = new TopCropImageView(navbar.getContext(), modRes, 0);
+                    IV.setMinimumWidth(navbar.getWidth());
                     IV.setMinimumHeight(statusbar_height + finalPadding);
 
                     LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, statusbar_height + finalPadding);

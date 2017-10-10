@@ -8,8 +8,8 @@ android {
         applicationId "net.madnation.zeus.contextual.xposed"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 21
-        versionName "1.4.2b1"
+        versionCode 22
+        versionName "1.4.2b2"
     }
     buildTypes {
         release {

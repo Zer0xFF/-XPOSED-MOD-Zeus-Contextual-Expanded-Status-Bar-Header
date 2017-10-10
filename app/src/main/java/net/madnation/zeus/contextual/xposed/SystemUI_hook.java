@@ -30,7 +30,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
         String layoutName = "status_bar_expanded_header";
         int padding = 0;
 
-        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
+        if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
         {
             layoutName = "qs_panel";
             element_id = "quick_settings_container";
@@ -74,7 +74,7 @@ public class SystemUI_hook implements IXposedHookZygoteInit, IXposedHookInitPack
                     LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, statusbar_height + finalPadding);
                     navbar.addView(IV, 0, p);
                 }
-                if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
+                if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
                 {
                     View ref = liparam.view.findViewById(liparam.res.getIdentifier("brightness_slider", "id", "com.android.systemui"));
                     View brightness_slider = (View) ref.getParent();

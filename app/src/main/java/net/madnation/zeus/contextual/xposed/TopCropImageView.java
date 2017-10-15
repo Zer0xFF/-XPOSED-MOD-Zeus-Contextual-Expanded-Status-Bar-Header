@@ -69,6 +69,17 @@ public class TopCropImageView extends ImageView {
         recomputeImgMatrix();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hint)
+    {
+        Log.e("Zeus_SystemUI", "onDisplayHint, Called");
+        if(hint)
+        {
+            updateBG();
+            recomputeImgMatrix();
+        }
+        super.onWindowFocusChanged(hint);
+    }
 
     @Override
     protected boolean setFrame(int l, int t, int r, int b) {

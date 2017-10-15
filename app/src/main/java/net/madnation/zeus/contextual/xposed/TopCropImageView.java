@@ -8,7 +8,6 @@ import android.graphics.Matrix;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import java.util.Random;
  * @author Chris Arriola
  * @Source based on https://gist.github.com/arriolac/3843346
  */
-public class TopCropImageView extends ImageView
+public class TopCropImageView extends android.support.v7.widget.AppCompatImageView
 {
 
 	private XModuleResources modRes = null;

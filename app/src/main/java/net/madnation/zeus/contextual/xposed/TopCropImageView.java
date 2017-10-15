@@ -60,7 +60,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
 		super.onLayout(changed, left, top, right, bottom);
-		Log.e("Zeus_SystemUI", "onLayout, Called");
+		Log.i("Zeus_SystemUI", "onLayout, Called");
 		updateBG();
 		recomputeImgMatrix();
 	}
@@ -68,7 +68,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	@Override
 	public void onWindowFocusChanged(boolean hint)
 	{
-		Log.e("Zeus_SystemUI", "onDisplayHint, Called");
+		Log.i("Zeus_SystemUI", "onDisplayHint, Called");
 		if(hint)
 		{
 			updateBG();
@@ -81,7 +81,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	protected boolean setFrame(int l, int t, int r, int b)
 	{
 		recomputeImgMatrix();
-		Log.e("Zeus_SystemUI", "setFrame, Called");
+		Log.i("Zeus_SystemUI", "setFrame, Called");
 		return super.setFrame(l, t, r, b);
 	}
 
@@ -89,7 +89,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	protected void onSizeChanged(int w, int h, int oldw, int oldh)
 	{
 		recomputeImgMatrix();
-		Log.e("Zeus_SystemUI", "onSizeChanged, Called");
+		Log.i("Zeus_SystemUI", "onSizeChanged, Called");
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
@@ -262,12 +262,12 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 					isUpToDate = false;
 			}
 
-			Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
+			Log.i("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
 			if(!isUpToDate)
 			{
 				sm.reload();
 				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
-				Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
+				Log.i("Zeus_SystemUI", "Prefs, Called:" + isCustom);
 				if(isCustom)
 				{
 					setCustomBackground(currentTime);

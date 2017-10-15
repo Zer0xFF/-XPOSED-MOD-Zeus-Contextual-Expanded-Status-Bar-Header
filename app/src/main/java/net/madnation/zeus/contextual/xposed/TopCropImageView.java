@@ -65,27 +65,7 @@ public class TopCropImageView extends ImageView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         Log.e("Zeus_SystemUI", "onLayout, Called");
-        if (sm != null && modRes != null) {
-            final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
-            boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
-
-            if (sm.isLoadSettingError()) {
-                sm.reload();
-                if (!sm.isLoadSettingError()) isUpToDate = false;
-            }
-
-            Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
-            if (!isUpToDate) {
-                sm.reload();
-                boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
-                Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
-                if (isCustom) {
-                    setCustomBackground(currentTime);
-                } else {
-                    setRandomBackground(currentTime);
-                }
-            }
-        }
+        updateBG();
         recomputeImgMatrix();
     }
 
@@ -241,4 +221,36 @@ public class TopCropImageView extends ImageView {
         CURRENT_BG = BG;
         setCustomBackground(BG);
     }
+
+    protected void updateBG()
+	{
+		if(sm != null && modRes != null)
+		{
+			final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
+			boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
+
+			if(sm.isLoadSettingError())
+			{
+				sm.reload();
+				if(!sm.isLoadSettingError())
+					isUpToDate = false;
+			}
+
+			Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
+			if(!isUpToDate)
+			{
+				sm.reload();
+				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
+				Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
+				if(isCustom)
+				{
+					setCustomBackground(currentTime);
+				}
+				else
+				{
+					setRandomBackground(currentTime);
+				}
+			}
+		}
+	}
 }

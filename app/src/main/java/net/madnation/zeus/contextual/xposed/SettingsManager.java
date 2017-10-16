@@ -111,7 +111,7 @@ public class SettingsManager
 		}
 		catch(IOException e)
 		{
-			Log.e("Exception", "File write failed: " + e.toString());
+			Log.e("Zeus_SettingMan_Except", "File write failed: " + e.toString());
 		}
 	}
 
@@ -123,8 +123,6 @@ public class SettingsManager
 		try
 		{
 			FileInputStream fis = new FileInputStream(new File(path, _configFile));
-			Log.i("Zeus", path);
-
 			if(fis != null)
 			{
 				InputStreamReader inputStreamReader = new InputStreamReader(fis);
@@ -143,11 +141,11 @@ public class SettingsManager
 		}
 		catch(FileNotFoundException e)
 		{
-			Log.e("login activity", "File not found: " + e.toString());
+			Log.e("Zeus_SettingMan", "File not found: " + e.toString());
 		}
 		catch(IOException e)
 		{
-			Log.e("login activity", "Can not read file: " + e.toString());
+			Log.e("Zeus_SettingMan", "Can not read file: " + e.toString());
 		}
 
 		return ret;

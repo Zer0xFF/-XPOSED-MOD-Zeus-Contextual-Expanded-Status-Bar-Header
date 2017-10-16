@@ -267,7 +267,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 			if(!isUpToDate)
 			{
 				sm.reload();
-				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
+				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false);
 				Log.i("Zeus_SystemUI", "Prefs, Called:" + isCustom);
 				if(isCustom)
 				{

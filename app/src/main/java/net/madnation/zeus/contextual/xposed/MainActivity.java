@@ -120,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
         sm = new SettingsManager();
         CheckBox cb = (CheckBox) findViewById(R.id.checkBox);
 
-        VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
-        cb.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
+        VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false));
+        cb.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false));
 
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

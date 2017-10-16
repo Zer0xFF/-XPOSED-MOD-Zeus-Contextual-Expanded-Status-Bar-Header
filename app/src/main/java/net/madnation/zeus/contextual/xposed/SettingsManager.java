@@ -155,9 +155,9 @@ public class SettingsManager
 		saveSettings();
 	}
 
-	boolean getBooleanPref(String name)
+	boolean getBooleanPref(String name, boolean defVal)
 	{
-		return boolPref.get(name) == null ? false : boolPref.get(name);
+		return boolPref.get(name) == null ? defVal : boolPref.get(name);
 	}
 
 	boolean reload()

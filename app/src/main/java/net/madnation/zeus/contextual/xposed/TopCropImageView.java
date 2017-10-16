@@ -255,18 +255,9 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 			final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
 			boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
 
-			if(sm.isLoadSettingError())
-			{
-				if(sm.reload())
-					isUpToDate = false;
-			}
-
-			if(sm.isModified()) isUpToDate = false;
-
 			Log.i("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
-			if(!isUpToDate)
+			if(sm.isModified() || !isUpToDate)
 			{
-				sm.reload();
 				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false);
 				Log.i("Zeus_SystemUI", "Prefs, Called:" + isCustom);
 				if(isCustom)

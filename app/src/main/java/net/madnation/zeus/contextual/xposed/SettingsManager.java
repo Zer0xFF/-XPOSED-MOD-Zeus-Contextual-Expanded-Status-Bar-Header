@@ -28,7 +28,7 @@ public class SettingsManager
 	private String path = Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/";
 	private String _configFile = "config.json";
 	private HashMap<String, Boolean> boolPref = new HashMap<>();
-	private boolean loadSettings;
+	private boolean _isReloadRequired;
 	private boolean _isModified;
 
 	public SettingsManager()
@@ -44,6 +44,10 @@ public class SettingsManager
 					case FileObserver.MODIFY:
 					case FileObserver.CREATE:
 					case FileObserver.DELETE:
+						if(path.endsWith(_configFile))
+						{
+							_isReloadRequired = true;
+						}
 						_isModified = true;
 				}
 			}
@@ -83,14 +87,14 @@ public class SettingsManager
 				String prefname = it.next().toString();
 				boolPref.put(prefname, jsonData.getBoolean(prefname));
 			}
-			loadSettings = true;
+			_isReloadRequired = false;
 		}
 		catch(JSONException e)
 		{
 			e.printStackTrace();
-			loadSettings = false;
+			_isReloadRequired = true;
 		}
-		return loadSettings;
+		return !_isReloadRequired;
 	}
 
 	private void writeToFile(String data)
@@ -151,24 +155,34 @@ public class SettingsManager
 
 	void setBooleanPref(String name, boolean value)
 	{
+		if(isReloadRequired())
+		{
+			reload();
+		}
+
 		boolPref.put(name, value);
 		saveSettings();
 	}
 
 	boolean getBooleanPref(String name, boolean defVal)
 	{
+		if(isReloadRequired())
+		{
+			reload();
+		}
+
 		return boolPref.get(name) == null ? defVal : boolPref.get(name);
 	}
 
-	boolean reload()
+	private boolean reload()
 	{
 		boolPref = new HashMap<>();
 		return loadSettings();
 	}
 
-	boolean isLoadSettingError()
+	private boolean isReloadRequired()
 	{
-		return !loadSettings;
+		return _isReloadRequired;
 	}
 
 	boolean isModified()

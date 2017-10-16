@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     private void Startup() {
         VH = new ViewHolder(this);
 
-        sm = new SettingsManager(true);
+        sm = new SettingsManager();
         CheckBox cb = (CheckBox) findViewById(R.id.checkBox);
 
         VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));

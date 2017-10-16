@@ -47,7 +47,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 		setScaleType(ScaleType.MATRIX);
 		setClipToOutline(true);
 		this.modRes = modRes;
-		this.sm = new SettingsManager(true);
+		this.sm = new SettingsManager();
 	}
 
 	public TopCropImageView(Context context, AttributeSet attributeSet)

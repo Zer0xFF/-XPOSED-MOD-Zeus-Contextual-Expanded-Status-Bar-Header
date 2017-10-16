@@ -23,6 +23,7 @@ public class SettingsManager {
 
 
     private String path = Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/";
+    private String _configFile = "config.json";
     private HashMap<String, Boolean> boolPref = new HashMap<>();
     private boolean loadSettings;
 
@@ -33,7 +34,7 @@ public class SettingsManager {
         if (loadsettings) loadSettings();
     }
 
-    public void saveSettings() {
+    private void saveSettings() {
         JSONObject jsonArr = new JSONObject();
         JSONObject jsonData = new JSONObject();
         try {
@@ -47,7 +48,7 @@ public class SettingsManager {
         writeToFile(jsonArr.toString());
     }
 
-    public void loadSettings() {
+    private boolean loadSettings() {
         String file = readFromFile();
         try {
             JSONObject jsonArr = new JSONObject(file);
@@ -62,6 +63,7 @@ public class SettingsManager {
             e.printStackTrace();
             loadSettings = false;
         }
+        return loadSettings;
     }
 
     private void writeToFile(String data) {
@@ -69,7 +71,7 @@ public class SettingsManager {
         if (!dir.exists())
             dir.mkdirs();
         try {
-            FileOutputStream fos = new FileOutputStream(new File(path, "config.json"));
+            FileOutputStream fos = new FileOutputStream(new File(path, _configFile));
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos);
             outputStreamWriter.write(data);
             outputStreamWriter.close();
@@ -83,7 +85,7 @@ public class SettingsManager {
         String ret = "";
 
         try {
-            FileInputStream fis = new FileInputStream(new File(path, "config.json"));
+            FileInputStream fis = new FileInputStream(new File(path, _configFile));
             Log.i("Zeus", path);
 
             if (fis != null) {
@@ -108,22 +110,21 @@ public class SettingsManager {
         return ret;
     }
 
-    public void setBooleanPref(String name, boolean value) {
+    void setBooleanPref(String name, boolean value) {
         boolPref.put(name, value);
         saveSettings();
     }
 
-    public boolean getBooleanPref(String name) {
-        boolean res = boolPref.get(name) == null ? false : boolPref.get(name);
-        return res;
+    boolean getBooleanPref(String name) {
+        return boolPref.get(name) == null ? false : boolPref.get(name);
     }
 
-    public void reload() {
+    boolean reload() {
         boolPref = new HashMap<>();
-        loadSettings();
+        return loadSettings();
     }
 
-    public boolean isLoadSettingError() {
+    boolean isLoadSettingError() {
         return !loadSettings;
     }
 }

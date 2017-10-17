@@ -118,19 +118,32 @@ public class MainActivity extends AppCompatActivity {
         VH = new ViewHolder(this);
 
         sm = new SettingsManager();
-        CheckBox cb = (CheckBox) findViewById(R.id.checkBox);
 
         VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false));
-        cb.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false));
 
-        cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        CheckBox custom = (CheckBox) findViewById(R.id.customcheckBox);
+        custom.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false));
+        custom.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 sm.setBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, isChecked);
                 VH.setTextView(isChecked);
             }
         });
-        cb.setEnabled(true);
+        custom.setEnabled(true);
+
+        CheckBox hourly = (CheckBox) findViewById(R.id.hourlycheckBox);
+        hourly.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_HOURLY_UPDATE, false));
+        hourly.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                sm.setBooleanPref(SettingsManager.PREF_ENABLE_HOURLY_UPDATE, isChecked);
+            }
+        });
+        hourly.setEnabled(true);
     }
 
     @Override

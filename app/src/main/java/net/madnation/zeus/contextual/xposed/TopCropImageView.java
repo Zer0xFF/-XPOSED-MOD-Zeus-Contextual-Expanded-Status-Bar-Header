@@ -262,6 +262,8 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 					isUpToDate = false;
 			}
 
+			if(sm.isModified()) isUpToDate = false;
+
 			Log.i("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
 			if(!isUpToDate)
 			{

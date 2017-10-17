@@ -1,6 +1,7 @@
 package net.madnation.zeus.contextual.xposed;
 
 import android.os.Environment;
+import android.os.FileObserver;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -20,19 +21,34 @@ import java.util.Map;
 
 public class SettingsManager {
     static String PREF_ENABLE_CUSTOM_IMAGES = "EnableCustomImages";
+    private final FileObserver _fileObserver;
 
 
     private String path = Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/";
     private String _configFile = "config.json";
     private HashMap<String, Boolean> boolPref = new HashMap<>();
     private boolean loadSettings;
+    private boolean _isModified;
 
-    public SettingsManager() {
-    }
-
-    public SettingsManager(boolean loadsettings) {
-        if (loadsettings) loadSettings();
-    }
+	public SettingsManager()
+	{
+		loadSettings();
+		_fileObserver = new FileObserver(path)
+		{
+			@Override
+			public void onEvent(int event, String path)
+			{
+				switch(event)
+				{
+					case FileObserver.MODIFY:
+					case FileObserver.CREATE:
+					case FileObserver.DELETE:
+						_isModified = true;
+				}
+			}
+		};
+		_fileObserver.startWatching();
+	}
 
     private void saveSettings() {
         JSONObject jsonArr = new JSONObject();
@@ -126,5 +142,12 @@ public class SettingsManager {
 
     boolean isLoadSettingError() {
         return !loadSettings;
+    }
+
+    boolean isModified()
+    {
+        Boolean res = _isModified;
+        _isModified = false;
+        return res;
     }
 }

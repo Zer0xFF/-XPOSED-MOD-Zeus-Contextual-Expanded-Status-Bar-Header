@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.Chronometer;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
@@ -144,6 +146,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         hourly.setEnabled(true);
+
+        Chronometer cm = (Chronometer) findViewById(R.id.chronometer2);
+        cm.setBase(SystemClock.elapsedRealtime());
+        cm.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener()
+        {
+            double startTime = SystemClock.elapsedRealtime();
+            public void onChronometerTick(Chronometer chronometer)
+            {
+                double countUp = 30 - ((SystemClock.elapsedRealtime() - startTime) / 1000);
+                if(countUp < 1.0)
+                {
+                    VH.morningIV.setBG(0);
+                    VH.afternoonIV.setBG(1);
+                    VH.eveningIV.setBG(2);
+                    VH.nightIV.setBG(3);
+                    startTime = SystemClock.elapsedRealtime();
+                }
+            }
+        });
+        cm.start();
     }
 
     @Override

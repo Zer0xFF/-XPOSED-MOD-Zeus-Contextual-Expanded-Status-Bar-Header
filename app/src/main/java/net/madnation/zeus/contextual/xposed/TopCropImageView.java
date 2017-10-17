@@ -257,8 +257,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 
 			if(sm.isLoadSettingError())
 			{
-				sm.reload();
-				if(!sm.isLoadSettingError())
+				if(sm.reload())
 					isUpToDate = false;
 			}
 

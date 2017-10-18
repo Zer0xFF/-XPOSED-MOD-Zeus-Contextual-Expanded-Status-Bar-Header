@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class SettingsManager {
     static String PREF_ENABLE_CUSTOM_IMAGES = "EnableCustomImages";
+    static final String PREF_ENABLE_FROZEN = "PREF_ENABLE_FROZEN";
 
 
     private String path = Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/";

@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private final int AFTERNOON_REQ = 2002;
     private final int EVENING_REQ = 2003;
     private final int NIGHT_REQ = 2004;
+    private static final int FROZEN_REQ = 2005;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +122,9 @@ public class MainActivity extends AppCompatActivity {
         sm = new SettingsManager(true);
         CheckBox cb = (CheckBox) findViewById(R.id.checkBox);
 
-        VH.setTextView(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
-        cb.setChecked(sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES));
+        boolean enableCustomImages = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
+        VH.setTextView(enableCustomImages);
+        cb.setChecked(enableCustomImages);
 
         cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -131,6 +134,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         cb.setEnabled(true);
+
+        CheckBox freezeCb = (CheckBox) findViewById(R.id.freeze_checkBox);
+
+        final boolean frozenEnabled = sm.getBooleanPref(SettingsManager.PREF_ENABLE_FROZEN);
+        freezeCb.setChecked(frozenEnabled);
+
+        freezeCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                sm.setBooleanPref(SettingsManager.PREF_ENABLE_FROZEN, isChecked);
+            }
+        });
+
     }
 
     @Override
@@ -198,6 +214,9 @@ public class MainActivity extends AppCompatActivity {
                     case NIGHT_REQ://"Night":
                         VH.nightIV.setImageBitmap(bitmap);
                         break;
+                    case FROZEN_REQ:
+                        VH.freezeIV.setImageBitmap(bitmap);
+                        break;
                 }
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
@@ -226,6 +245,9 @@ public class MainActivity extends AppCompatActivity {
             case NIGHT_REQ://"Night":
                 img_name = "NIGHT_BG";
                 break;
+            case FROZEN_REQ:
+                img_name = "FROZEN_BG";
+                break;
         }
 
         File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + img_name + "/");
@@ -250,20 +272,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class ViewHolder {
-        private final View morningView;
-        private final View afternoonView;
-        private final View eveningView;
-        private final View nightView;
+        private final View morningView, afternoonView, eveningView, nightView, freezeView;
 
-        private final TextView morningTV;
-        private final TextView afternoonTV;
-        private final TextView eveningTV;
-        private final TextView nightTV;
+        private final TextView morningTV, afternoonTV, eveningTV, nightTV, freezeTV;
 
-        public final TopCropImageView morningIV;
-        public final TopCropImageView afternoonIV;
-        public final TopCropImageView eveningIV;
-        public final TopCropImageView nightIV;
+        public final TopCropImageView morningIV, afternoonIV, eveningIV, nightIV, freezeIV;
 
         private boolean isEnable = false;
 
@@ -284,6 +297,9 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case "Night":
                             IMAGE_REQ = NIGHT_REQ;
+                            break;
+                        case "Frozen":
+                            IMAGE_REQ = FROZEN_REQ;
                             break;
                     }
                     {
@@ -364,6 +380,9 @@ public class MainActivity extends AppCompatActivity {
                                                 case "Night":
                                                     VH.nightIV.setBG(3);
                                                     break;
+                                                case "Frozen":
+                                                    VH.freezeIV.setBG(4);
+                                                    break;
                                             }
                                         }
                                     });
@@ -390,42 +409,42 @@ public class MainActivity extends AppCompatActivity {
             afternoonTV = (TextView) itemView.findViewById(R.id.Afternoon_textview);
             eveningTV = (TextView) itemView.findViewById(R.id.Evening_textview);
             nightTV = (TextView) itemView.findViewById(R.id.Night_textview);
+            freezeTV = (TextView) itemView.findViewById(R.id.Frozen_textview);
 
 
             morningView = itemView.findViewById(R.id.Morning);
             afternoonView = itemView.findViewById(R.id.Afternoon);
             eveningView = itemView.findViewById(R.id.Evening);
             nightView = itemView.findViewById(R.id.Night);
+            freezeView = itemView.findViewById(R.id.Frozen);
 
             morningIV = (TopCropImageView) itemView.findViewById(R.id.MorningIV);
             afternoonIV = (TopCropImageView) itemView.findViewById(R.id.AfternoonIV);
             eveningIV = (TopCropImageView) itemView.findViewById(R.id.EveningIV);
             nightIV = (TopCropImageView) itemView.findViewById(R.id.NightIV);
+            freezeIV = (TopCropImageView) itemView.findViewById(R.id.FrozenIV);
 
             morningView.setOnClickListener(CL);
             afternoonView.setOnClickListener(CL);
             eveningView.setOnClickListener(CL);
             nightView.setOnClickListener(CL);
+            freezeView.setOnClickListener(CL);
 
             morningIV.setBG(0);
             afternoonIV.setBG(1);
             eveningIV.setBG(2);
             nightIV.setBG(3);
+            freezeIV.setBG(4);
         }
 
         void setTextView(boolean isEnable) {
             this.isEnable = isEnable;
-            if (isEnable) {
-                morningTV.setTextColor(Color.BLACK);
-                afternoonTV.setTextColor(Color.BLACK);
-                eveningTV.setTextColor(Color.BLACK);
-                nightTV.setTextColor(Color.BLACK);
-            } else {
-                morningTV.setTextColor(Color.GRAY);
-                afternoonTV.setTextColor(Color.GRAY);
-                eveningTV.setTextColor(Color.GRAY);
-                nightTV.setTextColor(Color.GRAY);
-            }
+            morningTV.setTextColor(isEnable ? Color.BLACK : Color.GRAY);
+            afternoonTV.setTextColor(isEnable ? Color.BLACK : Color.GRAY);
+            eveningTV.setTextColor(isEnable ? Color.BLACK : Color.GRAY);
+            nightTV.setTextColor(isEnable ? Color.BLACK : Color.GRAY);
+
+            freezeTV.setTextColor(isEnable ? Color.WHITE : Color.GRAY);
         }
     }
 

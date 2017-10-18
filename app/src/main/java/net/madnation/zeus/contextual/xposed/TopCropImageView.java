@@ -34,6 +34,8 @@ public class TopCropImageView extends ImageView {
     private final int AFTERNOON_BG = 1;
     private final int EVENING_BG = 2;
     private final int NIGHT_BG = 3;
+    private final int FROZEN_BG = 4;
+
     private boolean FORCE_BG = false;
 
     private final int MORNING_START = 3;
@@ -77,6 +79,7 @@ public class TopCropImageView extends ImageView {
             Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
             if (!isUpToDate) {
                 sm.reload();
+
                 boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
                 Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
                 if (isCustom) {
@@ -133,6 +136,10 @@ public class TopCropImageView extends ImageView {
     }
 
     private int currentTime() {
+        boolean frozenEnabled = sm.getBooleanPref(SettingsManager.PREF_ENABLE_FROZEN);
+        if (frozenEnabled)
+            return FROZEN_BG;
+
         Calendar c = new GregorianCalendar();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
@@ -179,6 +186,11 @@ public class TopCropImageView extends ImageView {
                         R.drawable.night_starry_night_shawn_harquail,
                 };
                 break;
+            case FROZEN_BG:
+                drawerIDarr = new int[]{
+                        R.drawable.frozen_black_stannis
+                };
+                break;
         }
         try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
             if (!FORCE_BG && modRes != null) {
@@ -206,6 +218,9 @@ public class TopCropImageView extends ImageView {
                 break;
             case NIGHT_BG:
                 BG = "NIGHT_BG";
+                break;
+            case FROZEN_BG:
+                BG = "FROZEN_BG";
                 break;
         }
 

@@ -23,7 +23,8 @@ public class SettingsManager
 {
 	static final String PREF_ENABLE_HOURLY_UPDATE = "EnableHourlyUpdate";
 	static final String PREF_ENABLE_CUSTOM_IMAGES = "EnableCustomImages";
- 	private final FileObserver _fileObserver;
+	static final String PREF_ENABLE_FROZEN = "PREF_ENABLE_FROZEN";
+	private final FileObserver _fileObserver;
 
 
 	private String path = Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/";

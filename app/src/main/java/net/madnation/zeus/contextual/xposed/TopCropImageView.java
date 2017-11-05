@@ -33,6 +33,8 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	private final int AFTERNOON_BG = 1;
 	private final int EVENING_BG = 2;
 	private final int NIGHT_BG = 3;
+	private final int FROZEN_BG = 4;
+
 	private boolean FORCE_BG = false;
 
 	private final int MORNING_START = 3;
@@ -132,6 +134,10 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 
 	private int currentTime()
 	{
+		boolean frozenEnabled = sm.getBooleanPref(SettingsManager.PREF_ENABLE_FROZEN, false);
+		if (frozenEnabled)
+			return FROZEN_BG;
+
 		Calendar c = new GregorianCalendar();
 		int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
 		if(timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START)
@@ -171,6 +177,9 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 			case NIGHT_BG:
 				drawerIDarr = new int[]{R.drawable.night_chicago_justin_brown, R.drawable.night_canary_islands_i_k_o, R.drawable.night_starry_night_shawn_harquail,};
 				break;
+			case FROZEN_BG:
+				drawerIDarr = new int[]{R.drawable.frozen_black_stannis};
+				break;
 		}
 		try
 		{//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
@@ -206,6 +215,9 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 				break;
 			case NIGHT_BG:
 				BG = "NIGHT_BG";
+				break;
+			case FROZEN_BG:
+				BG = "FROZEN_BG";
 				break;
 		}
 

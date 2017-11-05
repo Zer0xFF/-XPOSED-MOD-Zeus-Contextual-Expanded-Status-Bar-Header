@@ -56,21 +56,28 @@
                 android:layout_marginBottom="15dp"
                 android:layout_below="@+id/EnableLayout2">
 
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:padding="16dp">
 
                     <CheckBox
+                        android:id="@+id/customcheckBox"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Enable Custom Images"
-                        android:id="@+id/customcheckBox"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentStart="true"
-                        android:enabled="false" />
+                        android:enabled="false"
+                        android:gravity="center"
+                        android:text="Enable Custom Images"/>
 
-                </RelativeLayout>
+                    <CheckBox
+                        android:id="@+id/freeze_checkBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Frozen Time Mode"/>
+
+                </LinearLayout>
             </android.support.v7.widget.CardView>
 
             <android.support.v7.widget.CardView
@@ -230,6 +237,47 @@
                         android:layout_alignParentLeft="true"
                         android:gravity="center"
                         android:id="@+id/Night_textview" />
+
+                </RelativeLayout>
+            </android.support.v7.widget.CardView>
+            <android.support.v7.widget.CardView
+
+                android:id="@+id/Frozen"
+                android:layout_width="match_parent"
+                android:layout_height="116dp"
+                android:layout_below="@+id/Night"
+                android:layout_marginBottom="15dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <net.madnation.zeus.contextual.xposed.TopCropImageView
+                        android:id="@+id/FrozenIV"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerVertical="true"
+                        android:scaleType="matrix"
+                        android:src="@drawable/frozen_black_stannis"/>
+
+                    <TextView
+                        android:id="@+id/Frozen_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center"
+                        android:text="Frozen Time Mode"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="#FF888888"/>
 
                 </RelativeLayout>
             </android.support.v7.widget.CardView>

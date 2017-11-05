@@ -44,7 +44,8 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 
 	private int _hour;
 
-	public TopCropImageView(Context context, XModuleResources modRes, int DummyValueToAvoidUIUsingThisConstructor)
+	public TopCropImageView(Context context, XModuleResources modRes,
+							int DummyValueToAvoidUIUsingThisConstructor)
 	{
 		super(context);
 		setScaleType(ScaleType.MATRIX);
@@ -135,8 +136,10 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	private int currentTime()
 	{
 		boolean frozenEnabled = sm.getBooleanPref(SettingsManager.PREF_ENABLE_FROZEN, false);
-		if (frozenEnabled)
+		if(frozenEnabled)
+		{
 			return FROZEN_BG;
+		}
 
 		Calendar c = new GregorianCalendar();
 		int timeOfDay = c.get(Calendar.HOUR_OF_DAY);

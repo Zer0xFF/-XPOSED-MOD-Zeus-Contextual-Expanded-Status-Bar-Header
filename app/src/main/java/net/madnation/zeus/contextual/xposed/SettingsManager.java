@@ -103,7 +103,9 @@ public class SettingsManager
 	{
 		File dir = new File(path);
 		if(!dir.exists())
+		{
 			dir.mkdirs();
+		}
 		try
 		{
 			FileOutputStream fos = new FileOutputStream(new File(path, _configFile));

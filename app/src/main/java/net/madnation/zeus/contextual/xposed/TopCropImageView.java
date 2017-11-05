@@ -4,12 +4,10 @@ import android.content.Context;
 import android.content.res.XModuleResources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,222 +21,262 @@ import java.util.Random;
  * @author Chris Arriola
  * @Source based on https://gist.github.com/arriolac/3843346
  */
-public class TopCropImageView extends ImageView {
+public class TopCropImageView extends android.support.v7.widget.AppCompatImageView
+{
 
-    private XModuleResources modRes = null;
-    private SettingsManager sm;
+	private XModuleResources modRes = null;
+	private SettingsManager sm;
 
-    private static int CURRENT_BG = -1;
+	private static int CURRENT_BG = -1;
 
-    private final int MORNING_BG = 0;
-    private final int AFTERNOON_BG = 1;
-    private final int EVENING_BG = 2;
-    private final int NIGHT_BG = 3;
-    private boolean FORCE_BG = false;
+	private final int MORNING_BG = 0;
+	private final int AFTERNOON_BG = 1;
+	private final int EVENING_BG = 2;
+	private final int NIGHT_BG = 3;
+	private boolean FORCE_BG = false;
 
-    private final int MORNING_START = 3;
-    private final int AFTERNOON_START = 12;
-    private final int EVENING_START = 18;
-    private final int NIGHT_START = 21;
-
-
-    public TopCropImageView(Context context, XModuleResources modRes, int DummyValueToAvoidUIUsingThisConstructor) {
-        super(context);
-        setScaleType(ScaleType.MATRIX);
-        setClipToOutline(true);
-        this.modRes = modRes;
-        this.sm = new SettingsManager(true);
-    }
-
-    public TopCropImageView(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        setScaleType(ScaleType.MATRIX);
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        //Log.e("Zeus_SystemUI", "OnDraw, Called");
-        super.onDraw(canvas);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        Log.e("Zeus_SystemUI", "onLayout, Called");
-        if (sm != null && modRes != null) {
-            final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
-            boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
-
-            if (sm.isLoadSettingError()) {
-                sm.reload();
-                if (!sm.isLoadSettingError()) isUpToDate = false;
-            }
-
-            Log.e("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
-            if (!isUpToDate) {
-                sm.reload();
-                boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
-                Log.e("Zeus_SystemUI", "Prefs, Called:" + isCustom);
-                if (isCustom) {
-                    setCustomBackground(currentTime);
-                } else {
-                    setRandomBackground(currentTime);
-                }
-            }
-        }
-        recomputeImgMatrix();
-    }
+	private final int MORNING_START = 3;
+	private final int AFTERNOON_START = 12;
+	private final int EVENING_START = 18;
+	private final int NIGHT_START = 21;
 
 
-    @Override
-    protected boolean setFrame(int l, int t, int r, int b) {
-        recomputeImgMatrix();
-        Log.e("Zeus_SystemUI", "setFrame, Called");
-        return super.setFrame(l, t, r, b);
-    }
+	public TopCropImageView(Context context, XModuleResources modRes, int DummyValueToAvoidUIUsingThisConstructor)
+	{
+		super(context);
+		setScaleType(ScaleType.MATRIX);
+		setClipToOutline(true);
+		this.modRes = modRes;
+		this.sm = new SettingsManager(true);
+	}
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        recomputeImgMatrix();
-        Log.e("Zeus_SystemUI", "onSizeChanged, Called");
-        super.onSizeChanged(w, h, oldw, oldh);
-    }
+	public TopCropImageView(Context context, AttributeSet attributeSet)
+	{
+		super(context, attributeSet);
+		setScaleType(ScaleType.MATRIX);
+	}
 
-    private void recomputeImgMatrix() {
-        final Matrix matrix = getImageMatrix();
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+	{
+		super.onLayout(changed, left, top, right, bottom);
+		Log.i("Zeus_SystemUI", "onLayout, Called");
+		updateBG();
+		recomputeImgMatrix();
+	}
 
-        float scale;
-        final int viewWidth = getWidth() - getPaddingLeft() - getPaddingRight();
-        final int viewHeight = getHeight() - getPaddingTop() - getPaddingBottom();
-        if (getDrawable() == null) {
-            return;
-        }
-        final int drawableWidth = getDrawable().getIntrinsicWidth();
-        final int drawableHeight = getDrawable().getIntrinsicHeight();
+	@Override
+	public void onWindowFocusChanged(boolean hint)
+	{
+		Log.i("Zeus_SystemUI", "onDisplayHint, Called");
+		if(hint)
+		{
+			updateBG();
+			recomputeImgMatrix();
+		}
+		super.onWindowFocusChanged(hint);
+	}
 
-        if (drawableWidth * viewHeight > drawableHeight * viewWidth) {
-            scale = (float) viewHeight / (float) drawableHeight;
-        } else {
-            scale = (float) viewWidth / (float) drawableWidth;
-        }
+	@Override
+	protected boolean setFrame(int l, int t, int r, int b)
+	{
+		recomputeImgMatrix();
+		Log.i("Zeus_SystemUI", "setFrame, Called");
+		return super.setFrame(l, t, r, b);
+	}
 
-        if (drawableWidth * scale < viewWidth){
-            scale = (float) viewWidth / (float) drawableWidth;
-        } else if (drawableHeight * scale < viewHeight) {
-            scale = (float) viewHeight / (float) drawableHeight;
-        }
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh)
+	{
+		recomputeImgMatrix();
+		Log.i("Zeus_SystemUI", "onSizeChanged, Called");
+		super.onSizeChanged(w, h, oldw, oldh);
+	}
 
-        matrix.setScale(scale, scale);
-        setImageMatrix(matrix);
-    }
+	private void recomputeImgMatrix()
+	{
+		final Matrix matrix = getImageMatrix();
 
-    private int currentTime() {
-        Calendar c = new GregorianCalendar();
-        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        if (timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START) {
-            return MORNING_BG;
-        } else if (timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START) {
-            return AFTERNOON_BG;
-        } else if (timeOfDay >= EVENING_START && timeOfDay < NIGHT_START) {
-            return EVENING_BG;
-        } else if ((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START)) {
-            return NIGHT_BG;
-        }
-        return -1;
-    }
+		float scale;
+		final int viewWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+		final int viewHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+		if(getDrawable() == null)
+		{
+			return;
+		}
+		final int drawableWidth = getDrawable().getIntrinsicWidth();
+		final int drawableHeight = getDrawable().getIntrinsicHeight();
 
-    private void setRandomBackground(int currentTime) {
-        int[] drawerIDarr;
-        switch (currentTime) {
-            default:
-            case MORNING_BG:
-                drawerIDarr = new int[]{
-                        R.drawable.morning_banna_leaf_threeheadedmonkey,
-                        R.drawable.morning_niall_stopford,
-                        R.drawable.morning_my_country_vasile_hurghis,
-                };
-                break;
-            case AFTERNOON_BG:
-                drawerIDarr = new int[]{
-                        R.drawable.afternoon_brooklyn_bridge_andrew_mace,
-                        R.drawable.afternoon_delight_james_marvin_phelps,
-                        R.drawable.afternoon_morocco_trey_ratcliff,
-                };
-                break;
-            case EVENING_BG:
-                drawerIDarr = new int[]{
-                        R.drawable.evening_castelfalfi_bernd_thaller,
-                        R.drawable.evening_chicago_james_clear,
-                        R.drawable.evening_singapore_jurek_d,
-                };
-                break;
-            case NIGHT_BG:
-                drawerIDarr = new int[]{
-                        R.drawable.night_chicago_justin_brown,
-                        R.drawable.night_canary_islands_i_k_o,
-                        R.drawable.night_starry_night_shawn_harquail,
-                };
-                break;
-        }
-        try {//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
-            if (!FORCE_BG && modRes != null) {
-                setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
-            } else {
-                setImageResource(drawerIDarr[new Random().nextInt(drawerIDarr.length)]);
-            }
-            CURRENT_BG = currentTime;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+		if(drawableWidth * viewHeight > drawableHeight * viewWidth)
+		{
+			scale = (float) viewHeight / (float) drawableHeight;
+		}
+		else
+		{
+			scale = (float) viewWidth / (float) drawableWidth;
+		}
 
-    private void setCustomBackground(int currentTime) {
-        String BG = null;
-        switch (currentTime) {
-            case MORNING_BG:
-                BG = "MORNING_BG";
-                break;
-            case AFTERNOON_BG:
-                BG = "AFTERNOON_BG";
-                break;
-            case EVENING_BG:
-                BG = "EVENING_BG";
-                break;
-            case NIGHT_BG:
-                BG = "NIGHT_BG";
-                break;
-        }
+		if(drawableWidth * scale < viewWidth)
+		{
+			scale = (float) viewWidth / (float) drawableWidth;
+		}
+		else if(drawableHeight * scale < viewHeight)
+		{
+			scale = (float) viewHeight / (float) drawableHeight;
+		}
 
-        File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + BG);
+		matrix.setScale(scale, scale);
+		setImageMatrix(matrix);
+	}
 
-        if (dir != null && dir.exists() && dir.isDirectory()) {
-            File BG_image;
-            ArrayList<File> images = new ArrayList<>();
+	private int currentTime()
+	{
+		Calendar c = new GregorianCalendar();
+		int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
+		if(timeOfDay >= MORNING_START && timeOfDay < AFTERNOON_START)
+		{
+			return MORNING_BG;
+		}
+		else if(timeOfDay >= AFTERNOON_START && timeOfDay < EVENING_START)
+		{
+			return AFTERNOON_BG;
+		}
+		else if(timeOfDay >= EVENING_START && timeOfDay < NIGHT_START)
+		{
+			return EVENING_BG;
+		}
+		else if((timeOfDay >= NIGHT_START && timeOfDay < 24) || (timeOfDay >= 0 && timeOfDay < MORNING_START))
+		{
+			return NIGHT_BG;
+		}
+		return -1;
+	}
 
-            for (File childfile : dir.listFiles()) {
-                if (childfile.isFile()) {
-                    if (childfile.getName().toLowerCase().contains(".jpg") || childfile.getName().toLowerCase().contains(".png")) {
-                        images.add(childfile);
-                    }
-                }
-            }
-            if (!images.isEmpty()) {
-                BG_image = images.get(new Random().nextInt(images.size()));
+	private void setRandomBackground(int currentTime)
+	{
+		int[] drawerIDarr;
+		switch(currentTime)
+		{
+			default:
+			case MORNING_BG:
+				drawerIDarr = new int[]{R.drawable.morning_banna_leaf_threeheadedmonkey, R.drawable.morning_niall_stopford, R.drawable.morning_my_country_vasile_hurghis,};
+				break;
+			case AFTERNOON_BG:
+				drawerIDarr = new int[]{R.drawable.afternoon_brooklyn_bridge_andrew_mace, R.drawable.afternoon_delight_james_marvin_phelps, R.drawable.afternoon_morocco_trey_ratcliff,};
+				break;
+			case EVENING_BG:
+				drawerIDarr = new int[]{R.drawable.evening_castelfalfi_bernd_thaller, R.drawable.evening_chicago_james_clear, R.drawable.evening_singapore_jurek_d,};
+				break;
+			case NIGHT_BG:
+				drawerIDarr = new int[]{R.drawable.night_chicago_justin_brown, R.drawable.night_canary_islands_i_k_o, R.drawable.night_starry_night_shawn_harquail,};
+				break;
+		}
+		try
+		{//Catches Invalid resource ID Error, when restarting SystemUI after Module Update.
+			if(!FORCE_BG && modRes != null)
+			{
+				setImageDrawable(modRes.getDrawable(drawerIDarr[new Random().nextInt(drawerIDarr.length)], this.getContext().getTheme()));
+			}
+			else
+			{
+				setImageResource(drawerIDarr[new Random().nextInt(drawerIDarr.length)]);
+			}
+			CURRENT_BG = currentTime;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
-                if (BG_image != null && BG_image.exists()) {
-                    Bitmap img = BitmapFactory.decodeFile(BG_image.getAbsolutePath());
-                    CURRENT_BG = currentTime;
-                    setImageBitmap(img);
-                    return;
-                }
-            }
-        }
-        setRandomBackground(currentTime);
-    }
+	private void setCustomBackground(int currentTime)
+	{
+		String BG = null;
+		switch(currentTime)
+		{
+			case MORNING_BG:
+				BG = "MORNING_BG";
+				break;
+			case AFTERNOON_BG:
+				BG = "AFTERNOON_BG";
+				break;
+			case EVENING_BG:
+				BG = "EVENING_BG";
+				break;
+			case NIGHT_BG:
+				BG = "NIGHT_BG";
+				break;
+		}
 
-    public void setBG(int BG) {
-        FORCE_BG = true;
-        CURRENT_BG = BG;
-        setCustomBackground(BG);
-    }
+		File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/ZCESH_BG/" + BG);
+
+		if(dir != null && dir.exists() && dir.isDirectory())
+		{
+			File BG_image;
+			ArrayList<File> images = new ArrayList<>();
+
+			for(File childfile : dir.listFiles())
+			{
+				if(childfile.isFile())
+				{
+					if(childfile.getName().toLowerCase().contains(".jpg") || childfile.getName().toLowerCase().contains(".png"))
+					{
+						images.add(childfile);
+					}
+				}
+			}
+			if(!images.isEmpty())
+			{
+				BG_image = images.get(new Random().nextInt(images.size()));
+
+				if(BG_image != null && BG_image.exists())
+				{
+					Bitmap img = BitmapFactory.decodeFile(BG_image.getAbsolutePath());
+					CURRENT_BG = currentTime;
+					setImageBitmap(img);
+					return;
+				}
+			}
+		}
+		setRandomBackground(currentTime);
+	}
+
+	public void setBG(int BG)
+	{
+		FORCE_BG = true;
+		CURRENT_BG = BG;
+		setCustomBackground(BG);
+	}
+
+	protected void updateBG()
+	{
+		if(sm != null && modRes != null)
+		{
+			final int currentTime = FORCE_BG ? CURRENT_BG : currentTime();
+			boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
+
+			if(sm.isLoadSettingError())
+			{
+				sm.reload();
+				if(!sm.isLoadSettingError())
+					isUpToDate = false;
+			}
+
+			Log.i("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
+			if(!isUpToDate)
+			{
+				sm.reload();
+				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES);
+				Log.i("Zeus_SystemUI", "Prefs, Called:" + isCustom);
+				if(isCustom)
+				{
+					setCustomBackground(currentTime);
+				}
+				else
+				{
+					setRandomBackground(currentTime);
+				}
+			}
+		}
+	}
 }

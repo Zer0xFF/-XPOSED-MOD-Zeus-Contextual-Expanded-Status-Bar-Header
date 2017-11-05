@@ -40,6 +40,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 	private final int EVENING_START = 18;
 	private final int NIGHT_START = 21;
 
+	private int _hour;
 
 	public TopCropImageView(Context context, XModuleResources modRes, int DummyValueToAvoidUIUsingThisConstructor)
 	{
@@ -256,7 +257,7 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 			boolean isUpToDate = !((CURRENT_BG == -1) || CURRENT_BG != currentTime);
 
 			Log.i("Zeus_SystemUI", "isToUpdate, Called:" + isUpToDate);
-			if(sm.isModified() || !isUpToDate)
+			if(isUpdate() || !isUpToDate)
 			{
 				boolean isCustom = sm.getBooleanPref(SettingsManager.PREF_ENABLE_CUSTOM_IMAGES, false);
 				Log.i("Zeus_SystemUI", "Prefs, Called:" + isCustom);
@@ -270,5 +271,34 @@ public class TopCropImageView extends android.support.v7.widget.AppCompatImageVi
 				}
 			}
 		}
+	}
+
+	private boolean isHourlyUpdate()
+	{
+		boolean isUpdateHourly = sm.getBooleanPref(SettingsManager.PREF_ENABLE_HOURLY_UPDATE, false);
+		if(isUpdateHourly)
+		{
+			int hour = _hour;
+			Calendar c = new GregorianCalendar();
+			_hour = c.get(Calendar.HOUR_OF_DAY);
+			return _hour != hour;
+		}
+		return false;
+	}
+
+	private boolean isUpdate()
+	{
+		boolean res = false;
+		if(sm.isModified())
+		{
+			res = true;
+		}
+
+		if(isHourlyUpdate())
+		{
+			res = true;
+		}
+
+		return res;
 	}
 }
